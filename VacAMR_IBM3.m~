@@ -147,7 +147,7 @@ classdef VacAMR_IBM3 < handle
         infection_count;    % number of times individual has had infection (per strain)
         symptoms;           % whether current infection is symptomatic (single value)
         seeks_treatment_on; % day a symptomatic patient will seek treatment (without waiting for recall/trace)
-        
+        P;                  % percentage of children vaccinated
         % screening (recall) and tracing notification arrays
         % Nx3 arrays 
         %  col 1: day of recall/trace issue
@@ -259,7 +259,8 @@ classdef VacAMR_IBM3 < handle
                 self.PRESCREEN_TRACED = params.PRESCREEN_TRACED;
                 self.PRESCREEN_SEEKED = params.PRESCREEN_SEEKED;
                 self.ALLOW_COINFECTION = params.ALLOW_COINFECTION;
-                self.ALLOW_TREAT = params.ALLOW_TREAT;
+                self.ALLOW_TREAT = params.ALLOW_TREAT; %all treatment is ceft
+                self.P = 0.85; %TODO this is dodgy put it in the param file
        
                 %-----------------------------------------------------------------
                 
@@ -280,10 +281,11 @@ classdef VacAMR_IBM3 < handle
                 % 3: date infection acquired (either strain)
                 % 4: symptomatic (true / false)
                 self.indiv_state = false(self.N,self.n_Strains,2,1); 
-                size(self.indiv_state)
+                size(self.indiv_state); %1000 2 1
                 
                 % Vac state
-                self.vac_state = false(self.N,1);
+                self.vac_state = false(self.N,1); %initially no one is vaccinated
+                
                 self.vaccinated_since = nan(self.N,1);
                 
                 % day on which particular strain passed to (susceptible) individual
@@ -357,10 +359,11 @@ classdef VacAMR_IBM3 < handle
                     self.counters.incidence_either = 0;
                     self.counters.incidence_new = 0;
                     
-                    
-                    self.counters.vaccinated = 0;
-                    %self.counters.vaccinated_new = 0; maybe?
-                    
+                    %TODO update these counters somewhere
+                    self.counters.current_vac = 0; %how many people are currently vaccinated
+                    self.counters.vac_doses_today = 0; %how many people have been vaccinated today
+                    self.counters.vac_doses = 0; %how many doses of the vaccine have been given
+                    self.counters.births = 0;
 
                     % number of people who attended after voluntarily seeking at each time step
                     % (2nd/3rd column: number infected with each strain)
@@ -558,8 +561,7 @@ classdef VacAMR_IBM3 < handle
                 
                 self.burn_in = params.burn_in;
                 
-            %% Vaccinate on day 0? for childhood vaccines?
-            
+
             
             end % class constructor
             
@@ -572,6 +574,7 @@ classdef VacAMR_IBM3 < handle
                 % resize arrays for new data keeping historical data up total #days if required
                 if ~self.LOW_MEM
                     self.indiv_state = cat(3,self.indiv_state,zeros(self.N, self.n_Strains ,n_Days));
+                    self.vac_state = cat()
                 end
                 self.counters.prevalence = cat(1,self.counters.prevalence,zeros(n_Days,self.n_Strains));
                 self.counters.prev_both = cat(1,self.counters.prev_both,zeros(n_Days,1));
@@ -599,8 +602,11 @@ classdef VacAMR_IBM3 < handle
                 self.counters.n_traced = cat(1,self.counters.n_traced,zeros(n_Days,self.n_Strains+1));
                 self.counters.n_recalled = cat(1,self.counters.n_recalled,zeros(n_Days,self.n_Strains+1));
                 
-                self.counters.vaccinated = cat(1,self.counters.vaccinated,zeros(n_Days,1));
-                %self.counters.vaccinated_new = cat(1,self.counters.vaccinated_new,zeros(n_Days,1))
+                self.counters.current_vac = cat(1,self.counters.current_vac,zeros(n_Days,1));
+                %self.counters.current_vac_new = cat(1,self.counters.current_vac_new,zeros(n_Days,1))
+                self.counters.vac_doses = cat(1,self.counters.vac_doses,zeros(n_Days,1));
+                self.counters.vac_doses_today = cat(1,self.counters.vac_doses_today,zeros(n_Days,1));
+                self.counters.births = cat(1,self.counters.births,zeros(n_Days,1));
                 
                 self.mean_degree_current = cat(1,self.mean_degree_current,zeros(n_Days,2));
                 
@@ -646,20 +652,23 @@ classdef VacAMR_IBM3 < handle
                     % store current infection state and use as template for update state 
                     if self.LOW_MEM
                         current_state = self.indiv_state;
+                        current_vac_state = self.vac_state;
                     else                   
                         current_state = self.indiv_state(:,:,self.today);
+                        current_vac_state = self.vac_state(:,:,self.today);
                     end
-                    
+                   
                     % set current state template which will be
                     % incrementally modified during each procedure below
                     new_state = current_state;
                         
                     %do the same as above for the vac state
-                    current_vac_state = self.vac_state;
+                    %current_vac_state = self.vac_state;
                     new_vac_state =  current_vac_state;
 
                   %% infection of strain susceptible individuals (zeros in state matrix)          
                     new_state = self.spread_infection(current_state, new_state, current_vac_state);
+                    
                     
                   %%  Screen population - will not include infections acquired today
                     % update recall notifications for a proportion infected patients
@@ -671,8 +680,12 @@ classdef VacAMR_IBM3 < handle
                   %% Parter-independent natural recovery with rate (r)
                     new_state = self.natural_recovery(current_state, new_state);
                     
-                  %% Births / Deaths           
-                    new_state = self.birth_death(new_state);
+                  %% Births / Deaths    
+                  %FIXME this should output a state and a vacstate!
+                    new_state = self.birth_death(new_state, new_vac_state);
+                    %size(new_state)
+                    [~,new_vac_state] = self.birth_death(new_state, new_vac_state);
+                    %size(new_vac_state)
 
                   %% Treatment seeking
                     % 1) For symptomatic individuals seeking treatment, including 
@@ -688,6 +701,7 @@ classdef VacAMR_IBM3 < handle
                    % recoveries and infections produced by above procedures
                     if self.LOW_MEM
                         self.indiv_state = new_state;
+                        self.vac_state = new_vac_state; %might fuck up
                         % current prevalence (number of individuals infected with each strain)
                         % prevalences (as row vector)
                         self.counters.prevalence(self.today+1,:) = sum(self.indiv_state,1); %?? first dim is N?
@@ -700,6 +714,9 @@ classdef VacAMR_IBM3 < handle
                         
                     else
                         self.indiv_state(:,:,self.today+1) = new_state;
+                        size(self.vac_state(:,self.today+1))
+                        size(new_vac_state)
+                        self.vac_state(self.today+1) = new_vac_state;
                         % current prevalence (number of individuals infected with each strain)
                         % prevalences (as row vector)
                         self.counters.prevalence(self.today+1,:) = sum(self.indiv_state(:,:,self.today+1),1);
@@ -860,19 +877,16 @@ classdef VacAMR_IBM3 < handle
                 
                 % Force of infection given number of partners
                 % with each strain type
-                %RM need to also include whether person is vaccinated
+       
                 infect_force = (1 - ( ( 1-repmat(self.BETA,self.N,1) ).^nb_totals )) .* mask;
-                %fprintf('infect force dim')
-                size(infect_force)
-                %RM multiply by 1-vaccinated param? 
-
-                % susceptible individuals to infect with specific strain today
-                fprintf('debug')
-                %size(rand(self.N,self.n_Strains))
-                double_vac_state = [current_vac_state,current_vac_state];
-                %size(double_vac_state)
-                %size(current_vac_state)
-                idx_infect = min(rand(self.N,self.n_Strains),double_vac_state) < infect_force;
+          
+             
+                % susceptible individuals to infect with specific strain
+                % today
+                double_vac_state = [current_vac_state,current_vac_state];       
+                idx_infect = max(rand(self.N,self.n_Strains),double_vac_state) < infect_force; 
+                %idx_infect = rand(self.N,self.n_Strains) < infect_force;
+       
                 %idx_infect = sprand(infect_force) > (1-infect_force);
 
 
@@ -888,10 +902,12 @@ classdef VacAMR_IBM3 < handle
                 self.counters.infection_count(idx_infect) = self.counters.infection_count(idx_infect) + 1;
                 
                 % indices of individuals infected with either strain today
-                idx_infected_today = any(idx_infect,2); %RM fucked up by vac dim?
+                idx_infected_today = any(idx_infect,2); 
                                 
                 % assign symptoms according to probability of infected individual showing symptoms
                 self.symptoms(idx_infected_today,1) = rand(sum(idx_infected_today,1),1) < self.P_SYMPTOMS;
+                %TODO vaccinated people less likely to get symptoms
+                
                 
                 % indices of symptomatic individuals, infected today
                 % (either strain) who will seek treatment (excluding those
@@ -903,6 +919,8 @@ classdef VacAMR_IBM3 < handle
                                 & isnan(self.seeks_treatment_on(idx_infected_today))...
                                 & (rand(sum(idx_infected_today),1) < self.P_SEEKS_TREATMENT);
                 n_willseek = sum(idx_willseek,1);
+                %TODO vaccinated people less likely to seek treatment,
+                %think they are protected?
                 
                 % normally distributed individual lab test and recall delays (integer rounded)
                 indiv_onset_delays = round(normrnd(self.ONSET_DELAY_MEAN, self.ONSET_DELAY_STD,[n_willseek 1]));
@@ -938,13 +956,14 @@ classdef VacAMR_IBM3 < handle
                 
             end
             
-            function [new_state] = natural_recovery(self, current_state, new_state)
+            function [new_state] = natural_recovery(self, current_state, new_state) 
               %% natural recovery of infected individuals AMR/non-AMR/coinfected
                 % CARE: natural recovery is currently implemented for
                 % strains independently (i.e. each strain has equal and 
                 % independent prob. of recovering on any day
 
                 % (excludes indivs. infected this time step)
+                % TODO loss of protection function may be similar to this
                 recover_rate = self.R*current_state;
 
                 % individuals to recover today
@@ -968,7 +987,7 @@ classdef VacAMR_IBM3 < handle
             
             end
             
-            function [new_state] = birth_death(self, new_state)
+            function [new_state, new_vac_state] = birth_death(self, new_state, new_vac_state)
               %% recycle population with births and deaths 
                 % - returning small fraction of population from infected (any strain) to
                 % susceptible on each day
@@ -978,11 +997,22 @@ classdef VacAMR_IBM3 < handle
                 % entire 'compartment' to be susceptible to all strains
 
                 % individuals to recover via birth/death turnover today
+                %FIXME something weird is going on, way too many deaths
                 idx_birthdeath = rand(self.N,1) < self.MU;
-
+                self.counters.births(self.today+1) = sum(idx_birthdeath); 
                 % update temproary state matrix with births/deaths
                 % i.e. population renewal, infected --> susceptible (all strains)
                 new_state(idx_birthdeath,:) = 0;
+                
+                %vaccinating new people
+                %TODO turn this on and off 
+                %if V1 = 1 or something
+                %too many people are being born!
+                idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
+                new_vac_state(idx_to_vaccinate1) = 1; 
+                self.vaccinated_since(idx_to_vaccinate1) = self.today;
+                self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
+                %self.counters.current_vac(self.today+1) = self.counters(self.today+1)+1
                 
                 % clear notifications for deceased individuals
                 self.recall_notify(idx_birthdeath,:) = NaN;

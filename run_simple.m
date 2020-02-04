@@ -6,7 +6,7 @@
     close all;
 
     % General parmeters 
-        N = 100;          % population size
+        N = 1000;          % population size
         n_Days = 1*365;     % days to simulate
     
         VERBOSE = true;
@@ -45,7 +45,7 @@
         % manual plots (examples)
             % get prevalence (per strain) from counter variable
             % (not yet normalised with respect to the population size)
-                prev_data = 100*data.prevalence./N
+                prev_data = 100*data.prevalence./N;
                 
                 figure('name','Strain prevalence');
                     hold on;
