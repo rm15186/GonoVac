@@ -6,8 +6,8 @@
     close all;
 
     % General parmeters 
-        N = 1000;          % population size
-        n_Days = 1*365;     % days to simulate
+        N = 1000;          % population size RM changed to 100 for speed
+        n_Days = 2*365;     % days to simulate
     
         VERBOSE = true;
         LOW_MEM = false;
@@ -22,13 +22,13 @@
             % p0(1) = overall initial prevalence of gonorrhea (0.1 = 10%)
             % p0(2) = proportion of positive cases with AMR component
             % p0(3) = proportion of coinfection given AMR
-            params.p0 = [0.2 0.1 0 1];
+            params.p0 = [0.2 0.1 0];
         
     % display all parameters
         params
         
     %% initialise model (create new model object)
-        gono_model = VacAMR_IBM2(N, params, [], VERBOSE, LOW_MEM);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
         n_Days = 365;
@@ -45,7 +45,7 @@
         % manual plots (examples)
             % get prevalence (per strain) from counter variable
             % (not yet normalised with respect to the population size)
-                prev_data = 100*data.prevalence./N
+                prev_data = 100*data.prevalence./N;
                 
                 figure('name','Strain prevalence');
                     hold on;

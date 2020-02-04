@@ -6,7 +6,7 @@
     close all;
 
     % General parmeters 
-        N = 1000;          % population size
+        N = 100;          % population size
         n_Days = 1*365;     % days to simulate
     
         VERBOSE = true;
