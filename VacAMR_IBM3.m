@@ -574,7 +574,7 @@ classdef VacAMR_IBM3 < handle
                 % resize arrays for new data keeping historical data up total #days if required
                 if ~self.LOW_MEM
                     self.indiv_state = cat(3,self.indiv_state,zeros(self.N, self.n_Strains ,n_Days));
-                    %self.vac_state = cat(2,self.vac_state,zeros(self.n))
+                    self.vac_state = cat(2,self.vac_state,zeros(self.N,n_Days)); %
                 end
                 self.counters.prevalence = cat(1,self.counters.prevalence,zeros(n_Days,self.n_Strains));
                 self.counters.prev_both = cat(1,self.counters.prev_both,zeros(n_Days,1));
@@ -652,10 +652,10 @@ classdef VacAMR_IBM3 < handle
                     % store current infection state and use as template for update state 
                     if self.LOW_MEM
                         current_state = self.indiv_state;
-                        %current_vac_state = self.vac_state;
+                        current_vac_state = self.vac_state;
                     else                   
                         current_state = self.indiv_state(:,:,self.today);
-                        %current_vac_state = self.vac_state(:,self.today);
+                        current_vac_state = self.vac_state(:,self.today);
                     end
                    
                     % set current state template which will be
@@ -663,7 +663,7 @@ classdef VacAMR_IBM3 < handle
                     new_state = current_state;
                         
                     %do the same as above for the vac state
-                    current_vac_state = self.vac_state;
+                    %current_vac_state = self.vac_state;
                     new_vac_state =  current_vac_state;
 
                   %% infection of strain susceptible individuals (zeros in state matrix)          
@@ -684,8 +684,8 @@ classdef VacAMR_IBM3 < handle
                   %FIXME this should output a state and a vacstate!
                     new_state = self.birth_death(new_state, new_vac_state);
                     %size(new_state)
-                    [~,new_vac_state] = self.birth_death(new_state, new_vac_state);
-                    %size(new_vac_state)
+                    [~,new_vac_state] = self.birth_death(new_state, new_vac_state); 
+                    %new_vac_state working
 
                   %% Treatment seeking
                     % 1) For symptomatic individuals seeking treatment, including 
@@ -701,7 +701,7 @@ classdef VacAMR_IBM3 < handle
                    % recoveries and infections produced by above procedures
                     if self.LOW_MEM
                         self.indiv_state = new_state;
-                        self.vac_state = new_vac_state; %might fuck up
+                        self.vac_state = new_vac_state; 
                         % current prevalence (number of individuals infected with each strain)
                         % prevalences (as row vector)
                         self.counters.prevalence(self.today+1,:) = sum(self.indiv_state,1); %?? first dim is N?
@@ -715,9 +715,9 @@ classdef VacAMR_IBM3 < handle
                     else
                         self.indiv_state(:,:,self.today+1) = new_state;
                         %size(self.vac_state(:,self.today+1))
-                        size(new_vac_state)
+                        size(new_vac_state);
                         %FIXME update vac state
-                        %self.vac_state(self.today+1) = new_vac_state;
+                        self.vac_state(:,self.today+1) = new_vac_state;
                         % current prevalence (number of individuals infected with each strain)
                         % prevalences (as row vector)
                         self.counters.prevalence(self.today+1,:) = sum(self.indiv_state(:,:,self.today+1),1);
@@ -736,7 +736,7 @@ classdef VacAMR_IBM3 < handle
                     % other notifications (recalls/trace/seek) should
                     % have already been reset (if required) in the above procedures
                                        
-                   
+                   sum(self.vac_state(:,self.today)); %about 70 people are vaccinated by the end
 
                   %% console output - show progress on screen
                     if self.VERBOSE && ~self.DEBUG
@@ -999,18 +999,24 @@ classdef VacAMR_IBM3 < handle
 
                 % individuals to recover via birth/death turnover today
                 %FIXME something weird is going on, way too many deaths
-                idx_birthdeath = rand(self.N,1) < self.MU;
-                self.counters.births(self.today+1) = sum(idx_birthdeath); 
+                idx_birthdeath = rand(self.N,1) < self.MU;%0.000001 is more accurate
+   
+                self.counters.births(self.today+1) = sum(idx_birthdeath);
+                sum(idx_birthdeath); 
                 % update temproary state matrix with births/deaths
                 % i.e. population renewal, infected --> susceptible (all strains)
                 new_state(idx_birthdeath,:) = 0;
+                new_vac_state(idx_birthdeath) = 0; %initialise as unvaccinated
                 
                 %vaccinating new people
                 %TODO turn this on and off 
                 %if V1 = 1 or something
-                %too many people are being born!
+                %too many people are being born, make sense with param,
+                %param is odd
+                
                 idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
                 new_vac_state(idx_to_vaccinate1) = 1; 
+                %any(new_vac_state) it is working!
                 self.vaccinated_since(idx_to_vaccinate1) = self.today;
                 self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
                 %self.counters.current_vac(self.today+1) = self.counters(self.today+1)+1
@@ -2978,10 +2984,10 @@ classdef VacAMR_IBM3 < handle
 
                 % parse command-line parameters; trap for bad input
                 i=1; 
-                while i<=length(varargin), 
+                while i<=length(varargin)
                   argok = 1; 
-                  if ischar(varargin{i}), 
-                    switch varargin{i},
+                  if ischar(varargin{i}) 
+                    switch varargin{i}
                         case 'range',        vec     = varargin{i+1}; i = i + 1;
                         case 'sample',       sample  = varargin{i+1}; i = i + 1;
                         case 'limit',        limit   = varargin{i+1}; i = i + 1;
@@ -2992,7 +2998,7 @@ classdef VacAMR_IBM3 < handle
                         otherwise, argok=0; 
                     end
                   end
-                  if ~argok, 
+                  if ~argok 
                     disp(['(PLFIT) Ignoring invalid argument #' num2str(i+1)]); 
                   end
                   i = i+1; 
@@ -3021,26 +3027,26 @@ classdef VacAMR_IBM3 < handle
                 if     isempty(setdiff(x,floor(x))), f_dattype = 'INTS';
                 elseif isreal(x),    f_dattype = 'REAL';
                 else                 f_dattype = 'UNKN';
-                end;
+                end
                 if strcmp(f_dattype,'INTS') && min(x) > 1000 && length(x)>100,
                     f_dattype = 'REAL';
-                end;
+                end
 
                 % estimate xmin and alpha, accordingly
-                switch f_dattype,
+                switch f_dattype
 
-                    case 'REAL',
+                    case 'REAL'
                         xmins = unique(x);
                         xmins = xmins(1:end-1);
-                        if ~isempty(xminx),
+                        if ~isempty(xminx)
                             xmins = xmins(find(xmins>=xminx,1,'first'));
-                        end;
-                        if ~isempty(limit),
+                        end
+                        if ~isempty(limit)
                             xmins(xmins>limit) = [];
-                        end;
-                        if ~isempty(sample),
+                        end
+                        if ~isempty(sample)
                             xmins = xmins(unique(round(linspace(1,length(xmins),sample))));
-                        end;
+                        end
                         dat   = zeros(size(xmins));
                         z     = sort(x);
                         for xm=1:length(xmins)
@@ -3049,53 +3055,53 @@ classdef VacAMR_IBM3 < handle
                             n    = length(z);
                             % estimate alpha using direct MLE
                             a    = n ./ sum( log(z./xmin) );
-                            if nosmall,
+                            if nosmall
                                 if (a-1)/sqrt(n) > 0.1
                                     dat(xm:end) = [];
                                     xm = length(xmins)+1;
                                     break;
-                                end;
-                            end;
+                                end
+                            end
                             % compute KS statistic
                             cx   = (0:n-1)'./n;
                             cf   = 1-(xmin./z).^a;
                             dat(xm) = max( abs(cf-cx) );
-                        end;
+                        end
                         D     = min(dat);
                         xmin  = xmins(find(dat<=D,1,'first'));
                         z     = x(x>=xmin);
                         n     = length(z); 
                         alpha = 1 + n ./ sum( log(z./xmin) );
-                        if finite, alpha = alpha*(n-1)/n+1/n; end; % finite-size correction
-                        if n < 50 && ~finite && ~nowarn,
+                        if finite, alpha = alpha*(n-1)/n+1/n; end % finite-size correction
+                        if n < 50 && ~finite && ~nowarn
                             fprintf('(PLFIT) Warning: finite-size bias may be present.\n');
-                        end;
+                        end
                         L = n*log((alpha-1)/xmin) - alpha.*sum(log(z./xmin));
 
-                    case 'INTS',
+                    case 'INTS'
 
-                        if isempty(vec),
+                        if isempty(vec)
                             vec  = (1.50:0.01:3.50);    % covers range of most practical 
-                        end;                            % scaling parameters
+                        end                           % scaling parameters
                         zvec = zeta(vec);
 
                         xmins = unique(x);
                         xmins = xmins(1:end-1);
-                        if ~isempty(xminx),
+                        if ~isempty(xminx)
                             xmins = xmins(find(xmins>=xminx,1,'first'));
-                        end;
-                        if ~isempty(limit),
+                        end
+                        if ~isempty(limit)
                             limit = round(limit);
                             xmins(xmins>limit) = [];
-                        end;
-                        if ~isempty(sample),
+                        end
+                        if ~isempty(sample)
                             xmins = xmins(unique(round(linspace(1,length(xmins),sample))));
-                        end;
+                        end
                         if isempty(xmins)
                             fprintf('(PLFIT) Error: x must contain at least two unique values.\n');
                             alpha = NaN; xmin = x(1); D = NaN;
                             return;
-                        end;
+                        end
                         xmax   = max(x);
                         dat    = zeros(length(xmins),2);
                         z      = x;
@@ -3126,7 +3132,7 @@ classdef VacAMR_IBM3 < handle
                                 for k=1:length(vec)
                                     L(k) = -vec(k)*slogz - n*log(zvec(k) - sum(xminvec.^-vec(k)));
                                 end
-                            end;
+                            end
                             [Y,I] = max(L);
                             % compute KS statistic
                             fit = cumsum((((xmin:xmax).^-vec(I)))./ (zvec(I) - sum((1:xmin-1).^-vec(I))));
@@ -3139,7 +3145,7 @@ classdef VacAMR_IBM3 < handle
                         z     = x(x>=xmin);
                         n     = length(z);
                         alpha = dat(I,2);
-                        if finite, alpha = alpha*(n-1)/n+1/n; end; % finite-size correction
+                        if finite, alpha = alpha*(n-1)/n+1/n; end % finite-size correction
                         if n < 50 && ~finite && ~nowarn,
                             fprintf('(PLFIT) Warning: finite-size bias may be present.\n');
                         end;
