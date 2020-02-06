@@ -1014,9 +1014,10 @@ classdef VacAMR_IBM3 < handle
                 %too many people are being born, make sense with param,
                 %param is odd
                 
+                %Childhood Vaccination strategy 1
                 idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
                 new_vac_state(idx_to_vaccinate1) = 1; 
-                %any(new_vac_state) it is working!
+                %any(new_vac_state); it is working!
                 self.vaccinated_since(idx_to_vaccinate1) = self.today;
                 self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
                 %self.counters.current_vac(self.today+1) = self.counters(self.today+1)+1
