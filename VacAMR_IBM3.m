@@ -674,7 +674,7 @@ classdef VacAMR_IBM3 < handle
                     % update recall notifications for a proportion infected patients
                     
                     % screen entire population with rate / probability GAMMA
-                    self.screening(current_state, true(self.N,1), self.GAMMA);  
+                    new_vac_state = self.screening(current_state, true(self.N,1), self.GAMMA,current_vac_state);  
                     
 
                   %% Parter-independent natural recovery with rate (r)
@@ -694,7 +694,8 @@ classdef VacAMR_IBM3 < handle
                     % 2) For recalled / traced individuals who have an
                     % 'appointment' for treatment today
                     if self.ALLOW_TREAT
-                        new_state = self.seek_treatment(current_state, new_state);
+                        new_state = self.seek_treatment(current_state, new_state, new_vac_state);
+                        [~, new_vac_state] = self.seek_treatment(current_state, new_state, new_vac_state);
                     end
                     
                   %% Finally: update state matrix for next day with 
@@ -870,7 +871,7 @@ classdef VacAMR_IBM3 < handle
                 else
                     idx_not_infected = ~any(current_state,2);
                     idx_not_infected = idx_not_infected(1);
-                    size(idx_not_infected)
+                    size(idx_not_infected);
                     mask = zeros(self.N,2); 
                     mask(idx_not_infected,1) = rand(sum(idx_not_infected),1) < 0.5;
                     mask(idx_not_infected,2) = ~mask(idx_not_infected,1);
@@ -989,6 +990,7 @@ classdef VacAMR_IBM3 < handle
             end
             
             function [new_state, new_vac_state] = birth_death(self, new_state, new_vac_state)
+ 
               %% recycle population with births and deaths 
                 % - returning small fraction of population from infected (any strain) to
                 % susceptible on each day
@@ -999,13 +1001,18 @@ classdef VacAMR_IBM3 < handle
 
                 % individuals to recover via birth/death turnover today
                 %FIXME something weird is going on, way too many deaths
+                new_vac_state = new_vac_state;
+                size(new_vac_state);
                 idx_birthdeath = rand(self.N,1) < self.MU;%0.000001 is more accurate
+                 new_state(idx_birthdeath,:) = 0;
+                 new_vac_state(idx_birthdeath) = 0;
+                 %size(new_vac_state);
    
                 self.counters.births(self.today+1) = sum(idx_birthdeath);
                 sum(idx_birthdeath); 
                 % update temproary state matrix with births/deaths
                 % i.e. population renewal, infected --> susceptible (all strains)
-                new_state(idx_birthdeath,:) = 0;
+
                 new_vac_state(idx_birthdeath) = 0; %initialise as unvaccinated
                 
                 %vaccinating new people
@@ -1014,12 +1021,13 @@ classdef VacAMR_IBM3 < handle
                 %too many people are being born, make sense with param,
                 %param is odd
                 
-                %Childhood Vaccination strategy 1
-                idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
-                new_vac_state(idx_to_vaccinate1) = 1; 
-                %any(new_vac_state); it is working!
-                self.vaccinated_since(idx_to_vaccinate1) = self.today;
-                self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
+                %Childhood Vaccination strategy 1 - should this be a new
+                %function??
+%                 idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
+%                 new_vac_state(idx_to_vaccinate1) = 1; 
+%                 %any(new_vac_state); it is working!
+%                 self.vaccinated_since(idx_to_vaccinate1) = self.today;
+%                 self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
                 %self.counters.current_vac(self.today+1) = self.counters(self.today+1)+1
                 
                 % clear notifications for deceased individuals
@@ -1040,7 +1048,7 @@ classdef VacAMR_IBM3 < handle
             
             end
              
-            function [self] = screening(self, current_state, idx_toscreen, screen_rate)
+            function [new_vac_state] = screening(self, current_state, idx_toscreen, screen_rate, new_vac_state)
            %%  Screen population for infection
             % a fixed proportion of all individuals is screened 
                 % DEBUG ONLY
@@ -1059,6 +1067,7 @@ classdef VacAMR_IBM3 < handle
                 % OR  equal to a subset of the population, for example when
                 % screening individuals who have been traced.
                 
+                new_vac_state = new_vac_state; %if weve commented out the other bit
                 % individuals to be screened today
                 if screen_rate < 1
                     % screen individuals with given probability 
@@ -1073,6 +1082,18 @@ classdef VacAMR_IBM3 < handle
                 self.counters.n_screened(self.today+1,:) = self.counters.n_screened(self.today+1,:) +...
                                                     [sum(idx_screened), sum(current_state(idx_screened,:),1)];
 
+                % Vaccination on Screening
+                %these should be params, should all be within an if
+                vac_offer_rate = 0.8;
+                vac_acceptance_rate = 0.5;
+                vac_rate = vac_offer_rate*vac_acceptance_rate;
+                
+                idx_to_vaccinate2 = min(rand(self.N,1),idx_screened) > 1-vac_rate;
+                new_vac_state(idx_to_vaccinate2) = 1; 
+                
+                self.vaccinated_since(idx_to_vaccinate2) = self.today;
+                self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate2,1);
+                
                 
                 % if screened AND infected (either strain) 
                 % - individual will be notified (recalled) 
@@ -1143,7 +1164,7 @@ classdef VacAMR_IBM3 < handle
             %%
             end
             
-            function [new_state] = seek_treatment(self, current_state, new_state)
+            function [new_state, new_vac_state] = seek_treatment(self, current_state, new_state, new_vac_state)
               %%  treat symptomatic individuals who voluntarily report
                     % If an individual has been (recently) infected,
                     % reported symptoms and choses to seek treatment - they
@@ -1173,6 +1194,21 @@ classdef VacAMR_IBM3 < handle
                     % treated today (infected or not)
                     % [unless precreening or point-of-care enabled below]
                     idx_treat_today = any([idx_seeked, idx_recalled, idx_traced], 2);
+                    
+                    
+                    %Vaccinate no prescreening - less targeted, more
+                    %vaccines
+                    size(new_vac_state);
+                    vac_offer_rate = 0.8;
+                    vac_acceptance_rate = 0.5;
+                    vac_rate = vac_offer_rate*vac_acceptance_rate;
+
+                    idx_to_vaccinate3 = min(rand(self.N,1),idx_treat_today) > 1-vac_rate;
+                    new_vac_state(idx_to_vaccinate3) = 1; 
+                    size(new_vac_state);
+
+                    self.vaccinated_since(idx_to_vaccinate3) = self.today;
+                    self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1);
                     
                     
                     % Option to screen traced individuals rather than treat
@@ -1222,7 +1258,7 @@ classdef VacAMR_IBM3 < handle
                             
                         
                         % perform screening (assign recalls where infected)
-                        self.screening(current_state, idx_prescreen, 1);                
+                        self.screening(current_state, idx_prescreen, 1,current_vac_state);                
 
                         % update screened today counter
                         self.counters.n_screened(self.today+1,:) = self.counters.n_screened(self.today+1,:) +...

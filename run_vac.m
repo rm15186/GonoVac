@@ -7,7 +7,7 @@
 
     % General parmeters 
         N = 1000;          % population size RM changed to 100 for speed
-        n_Days = 10*365;     % days to simulate
+        n_Days = 5*365;     % days to simulate
     
         VERBOSE = true;
         LOW_MEM = false;
@@ -31,7 +31,7 @@
         gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM); %turn on and off strategies here
         
     %% run simulation for n_Days # of days
-        n_Days = 10*365;
+        n_Days = 5*365;
         gono_model.simulate(n_Days);
     
     %% extract all counter data from model object 
@@ -71,6 +71,7 @@
                     title('Cumulative drug doses administered');
                     box on;
                     grid on;
+                
                     
                 figure('name','Dosage','color','w');
                     hold on;

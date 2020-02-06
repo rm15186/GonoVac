@@ -1078,7 +1078,7 @@ classdef AMR_IBM < handle
             %%
             end
             
-            function [new_state] = seek_treatment(self, current_state, new_state)
+            function [new_state] = seek_treatment(self, current_state, new_state, new_vac_state)
               %%  treat symptomatic individuals who voluntarily report
                     % If an individual has been (recently) infected,
                     % reported symptoms and choses to seek treatment - they
@@ -1094,6 +1094,9 @@ classdef AMR_IBM < handle
 %                      current_state = self.indiv_state;
 %                      new_state = self.indiv_state;
                     %-----------
+                    
+                    %TODO add vaccination for people receiving treatment?
+                    %or everyone who is contacted?
                     
                     % which individuals are:
                     % symptomatics / prev. symptomatics seeking treatment today
@@ -1534,6 +1537,8 @@ classdef AMR_IBM < handle
                             current_flag = self.trace_notify(idx_existing_trace,3);
                             new_flag = trace_count(idx_existing_trace,2)>0;
                             self.trace_notify(idx_existing_trace,3) = any([current_flag new_flag],2);
+                            
+                            
                             
                         end
                         

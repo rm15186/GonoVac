@@ -30,14 +30,14 @@
         
     %% initialise model (create new model object)
         
-    all_data = zeros(366,2,100);
+    all_data = zeros(1826,2,100);
     
     for i = 1:100
-        gono_model = AMR_IBM(N, params, [], VERBOSE, LOW_MEM);
-        
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
+        %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
-        n_Days = 1*365;
+        n_Days = 5*365;
         gono_model.simulate(n_Days);
         
     
