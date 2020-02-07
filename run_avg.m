@@ -7,7 +7,7 @@
 
     % General parmeters 
         N = 1000;          % population size
-        n_Days = 1*365;     % days to simulate
+        n_Days = 5*365;     % days to simulate
     
         VERBOSE = true;
         LOW_MEM = false;
@@ -32,12 +32,12 @@
         
     all_data = zeros(n_Days+1,2,10);
     
-    for i = 1:10
+    for i = 1:100
         gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,1]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
-        n_Days = 1*365;
+        n_Days = 5*365;
         gono_model.simulate(n_Days);
         
     

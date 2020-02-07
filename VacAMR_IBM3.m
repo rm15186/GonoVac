@@ -686,9 +686,9 @@ classdef VacAMR_IBM3 < handle
                     
                   %% Births / Deaths    
                   %FIXME this should output a state and a vacstate!
-                    new_state = self.birth_death(new_state, new_vac_state);
+                    %new_state = self.birth_death(new_state, new_vac_state);
                     %size(new_state)
-                    [~,new_vac_state] = self.birth_death(new_state, new_vac_state);
+                    [new_state,new_vac_state] = self.birth_death(new_state, new_vac_state);
                     
                     %new_vac_state working
 
@@ -699,10 +699,10 @@ classdef VacAMR_IBM3 < handle
                     % 2) For recalled / traced individuals who have an
                     % 'appointment' for treatment today
                     if self.ALLOW_TREAT
-                        new_state = self.seek_treatment(current_state, new_state, new_vac_state);
-                        [~, new_vac_state] = self.seek_treatment(current_state, new_state, new_vac_state);
+                        [new_state, new_vac_state] = self.seek_treatment(current_state, new_state, new_vac_state);
                         %fprintf('hi') %getting in loop 
-                        sum(new_vac_state); % not updating
+                        
+                        sum(new_vac_state); 
                     end
                     
                   %% Finally: update state matrix for next day with 
@@ -724,7 +724,7 @@ classdef VacAMR_IBM3 < handle
                         self.indiv_state(:,:,self.today+1) = new_state;
                         %size(self.vac_state(:,self.today+1))
                         size(new_vac_state);
-                        %FIXME update vac state
+                        
                         self.vac_state(:,self.today+1) = new_vac_state;
                         % current prevalence (number of individuals infected with each strain)
                         % prevalences (as row vector)
@@ -754,10 +754,10 @@ classdef VacAMR_IBM3 < handle
                             fprintf([reverseStr, msg]);
                             reverseStr = repmat(sprintf('\b'), 1, length(msg));
                         else
-                            %percentDone = 100 * day_count / n_Days;
-                            %msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
-                            %fprintf([reverseStr, msg]);
-                            %reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
+                            percentDone = 100 * day_count / n_Days;
+                            msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
+                            fprintf([reverseStr, msg]);
+                            reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
                         end
                     end
                     
@@ -1031,6 +1031,7 @@ classdef VacAMR_IBM3 < handle
                 if self.vac(1)
                 %Childhood Vaccination strategy 1 - should this be a new
                 %function??
+                    %fprintf('1')
                     idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
                     new_vac_state(idx_to_vaccinate1) = 1; 
                     %any(new_vac_state); it is working!
@@ -1093,6 +1094,7 @@ classdef VacAMR_IBM3 < handle
                 % Vaccination on Screening
                 %these should be params, should all be within an if
                 if self.vac(2)
+                    %fprintf('2')
                     vac_offer_rate = 0.8;
                     vac_acceptance_rate = 0.5;
                     vac_rate = vac_offer_rate*vac_acceptance_rate;
@@ -1217,13 +1219,15 @@ classdef VacAMR_IBM3 < handle
                         new_vac_state(idx_to_vaccinate3) = 1; 
                         size(new_vac_state);
                         sum(new_vac_state);
+                        %sum(idx_to_vaccinate3,1)
 
                         self.vaccinated_since(idx_to_vaccinate3) = self.today;
-                        self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1);
-                        
+                        self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1); 
+                        self.counters.vac_doses_today(self.today+1);
                         sum(idx_to_vaccinate3,1); %does seem to be working!
                     end
-                    sum(new_vac_state)
+                    sum(new_vac_state); %working!
+                    
                     % Option to screen traced individuals rather than treat
                     % today (ignore if we are using a point-of-care test)
                     idx_prescreen = false(self.N,1);              

@@ -23,7 +23,7 @@
             % p0(2) = proportion of positive cases with AMR component
             % p0(3) = proportion of coinfection given AMR
             params.p0 = [0.2 0.1 0];
-            vac = [0,0,1];
+            vac = [1,0,0];
         
     % display all parameters
         params

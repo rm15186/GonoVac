@@ -702,7 +702,7 @@ classdef VacAMR_IBM3 < handle
                         new_state = self.seek_treatment(current_state, new_state, new_vac_state);
                         [~, new_vac_state] = self.seek_treatment(current_state, new_state, new_vac_state);
                         %fprintf('hi') %getting in loop 
-                        sum(new_vac_state) % not updating
+                        sum(new_vac_state); % not updating
                     end
                     
                   %% Finally: update state matrix for next day with 
@@ -1210,19 +1210,21 @@ classdef VacAMR_IBM3 < handle
                         %fprintf('hi')
                         vac_offer_rate = 0.8;
                         vac_acceptance_rate = 0.5;
-                        vac_rate = vac_offer_rate*vac_acceptance_rate
+                        vac_rate = vac_offer_rate*vac_acceptance_rate;
 
                         idx_to_vaccinate3 = min(rand(self.N,1),idx_treat_today) > 1-vac_rate;
-                        sum()
+                        sum(idx_to_vaccinate3);
                         new_vac_state(idx_to_vaccinate3) = 1; 
                         size(new_vac_state);
                         sum(new_vac_state);
+                        sum(idx_to_vaccinate)
 
                         self.vaccinated_since(idx_to_vaccinate3) = self.today;
-                        self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1);
+                        self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1); %not working
                         
                         sum(idx_to_vaccinate3,1); %does seem to be working!
                     end
+                    sum(new_vac_state);
                     % Option to screen traced individuals rather than treat
                     % today (ignore if we are using a point-of-care test)
                     idx_prescreen = false(self.N,1);              
