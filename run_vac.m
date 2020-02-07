@@ -23,12 +23,13 @@
             % p0(2) = proportion of positive cases with AMR component
             % p0(3) = proportion of coinfection given AMR
             params.p0 = [0.2 0.1 0];
+            vac = [0,0,1];
         
     % display all parameters
         params
         
     %% initialise model (create new model object)
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM); %turn on and off strategies here
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, vac); %turn on and off strategies here
         
     %% run simulation for n_Days # of days
         n_Days = 5*365;
@@ -79,7 +80,7 @@
                     data.births;
                     plot([0:n_Days], cumsum(data.vac_doses_today),'b-');
                     plot([0:n_Days], cumsum(data.births),'r-');
-                    legend('vaccinated children','births');
+                    legend('vaccine doses','births');
                     xlabel('Time (days)');
                     ylabel('Number of vaccine doses')
                     title('Cumulative vaccine doses administered');

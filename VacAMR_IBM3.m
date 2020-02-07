@@ -197,26 +197,30 @@ classdef VacAMR_IBM3 < handle
         VERBOSE; % for controlling console text output
         LOW_MEM; % enable low memory mode (no state histories of each individual)
         DEBUG;   % extra console output for debugging
+        vac; %which vaccination strategt we want to use 
         
     end % class properties
 
         methods
             % Class Constructor
-            function [self] = VacAMR_IBM3(N, params, adj_set, VERBOSE, LOW_MEM)
+            function [self] = VacAMR_IBM3(N, params, adj_set, VERBOSE, LOW_MEM, vac)
                 
                 % switch on/off console output if specified
-                if nargin == 4
+                if nargin == 5
                     self.VERBOSE = VERBOSE;
-                elseif nargin == 5
+                elseif nargin == 6
                     self.VERBOSE = VERBOSE;
                     self.LOW_MEM = LOW_MEM;
                 end
                 
                 % debug console output ON/OFF
-                self.DEBUG = false;
+                self.DEBUG = false
                 
                 %  set values from inputs
                 self.N = N;
+                
+                self.vac = vac
+                
                 
                 % for this AMR / non-AMR implementation, fix n_Strains=2
                 % (dont even attempt changing this value as much of the code now
@@ -674,7 +678,7 @@ classdef VacAMR_IBM3 < handle
                     % update recall notifications for a proportion infected patients
                     
                     % screen entire population with rate / probability GAMMA
-                    new_vac_state = self.screening(current_state, true(self.N,1), self.GAMMA,current_vac_state);  
+                    new_vac_state = self.screening(current_state, true(self.N,1), self.GAMMA, current_vac_state);  
                     
 
                   %% Parter-independent natural recovery with rate (r)
@@ -684,7 +688,8 @@ classdef VacAMR_IBM3 < handle
                   %FIXME this should output a state and a vacstate!
                     new_state = self.birth_death(new_state, new_vac_state);
                     %size(new_state)
-                    [~,new_vac_state] = self.birth_death(new_state, new_vac_state); 
+                    [~,new_vac_state] = self.birth_death(new_state, new_vac_state);
+                    
                     %new_vac_state working
 
                   %% Treatment seeking
@@ -696,6 +701,8 @@ classdef VacAMR_IBM3 < handle
                     if self.ALLOW_TREAT
                         new_state = self.seek_treatment(current_state, new_state, new_vac_state);
                         [~, new_vac_state] = self.seek_treatment(current_state, new_state, new_vac_state);
+                        %fprintf('hi') %getting in loop 
+                        sum(new_vac_state); % not updating
                     end
                     
                   %% Finally: update state matrix for next day with 
@@ -747,10 +754,10 @@ classdef VacAMR_IBM3 < handle
                             fprintf([reverseStr, msg]);
                             reverseStr = repmat(sprintf('\b'), 1, length(msg));
                         else
-                            percentDone = 100 * day_count / n_Days;
-                            msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
-                            fprintf([reverseStr, msg]);
-                            reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
+                            %percentDone = 100 * day_count / n_Days;
+                            %msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
+                            %fprintf([reverseStr, msg]);
+                            %reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
                         end
                     end
                     
@@ -1001,11 +1008,12 @@ classdef VacAMR_IBM3 < handle
 
                 % individuals to recover via birth/death turnover today
                 %FIXME something weird is going on, way too many deaths
+                
                 new_vac_state = new_vac_state;
                 size(new_vac_state);
                 idx_birthdeath = rand(self.N,1) < self.MU;%0.000001 is more accurate
-                 new_state(idx_birthdeath,:) = 0;
-                 new_vac_state(idx_birthdeath) = 0;
+                new_state(idx_birthdeath,:) = 0;
+                new_vac_state(idx_birthdeath) = 0;
                  %size(new_vac_state);
    
                 self.counters.births(self.today+1) = sum(idx_birthdeath);
@@ -1020,16 +1028,16 @@ classdef VacAMR_IBM3 < handle
                 %if V1 = 1 or something
                 %too many people are being born, make sense with param,
                 %param is odd
-                
+                if self.vac(1)
                 %Childhood Vaccination strategy 1 - should this be a new
                 %function??
-%                 idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
-%                 new_vac_state(idx_to_vaccinate1) = 1; 
-%                 %any(new_vac_state); it is working!
-%                 self.vaccinated_since(idx_to_vaccinate1) = self.today;
-%                 self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
-                %self.counters.current_vac(self.today+1) = self.counters(self.today+1)+1
-                
+                    idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
+                    new_vac_state(idx_to_vaccinate1) = 1; 
+                    %any(new_vac_state); it is working!
+                    self.vaccinated_since(idx_to_vaccinate1) = self.today;
+                    self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
+                    %self.counters.current_vac(self.today+1) = self.counters(self.today+1)+1
+                end
                 % clear notifications for deceased individuals
                 self.recall_notify(idx_birthdeath,:) = NaN;
                 self.trace_notify(idx_birthdeath,:) = NaN;
@@ -1084,16 +1092,17 @@ classdef VacAMR_IBM3 < handle
 
                 % Vaccination on Screening
                 %these should be params, should all be within an if
-                vac_offer_rate = 0.8;
-                vac_acceptance_rate = 0.5;
-                vac_rate = vac_offer_rate*vac_acceptance_rate;
-                
-                idx_to_vaccinate2 = min(rand(self.N,1),idx_screened) > 1-vac_rate;
-                new_vac_state(idx_to_vaccinate2) = 1; 
-                
-                self.vaccinated_since(idx_to_vaccinate2) = self.today;
-                self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate2,1);
-                
+                if self.vac(2)
+                    vac_offer_rate = 0.8;
+                    vac_acceptance_rate = 0.5;
+                    vac_rate = vac_offer_rate*vac_acceptance_rate;
+
+                    idx_to_vaccinate2 = min(rand(self.N,1),idx_screened) > 1-vac_rate;
+                    new_vac_state(idx_to_vaccinate2) = 1; 
+
+                    self.vaccinated_since(idx_to_vaccinate2) = self.today;
+                    self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate2,1);
+                end
                 
                 % if screened AND infected (either strain) 
                 % - individual will be notified (recalled) 
@@ -1195,22 +1204,26 @@ classdef VacAMR_IBM3 < handle
                     % [unless precreening or point-of-care enabled below]
                     idx_treat_today = any([idx_seeked, idx_recalled, idx_traced], 2);
                     
-                    
+                    if self.vac(3)
                     %Vaccinate no prescreening - less targeted, more
                     %vaccines
-                    size(new_vac_state);
-                    vac_offer_rate = 0.8;
-                    vac_acceptance_rate = 0.5;
-                    vac_rate = vac_offer_rate*vac_acceptance_rate;
+                        %fprintf('hi')
+                        vac_offer_rate = 0.8;
+                        vac_acceptance_rate = 0.5;
+                        vac_rate = vac_offer_rate*vac_acceptance_rate;
 
-                    idx_to_vaccinate3 = min(rand(self.N,1),idx_treat_today) > 1-vac_rate;
-                    new_vac_state(idx_to_vaccinate3) = 1; 
-                    size(new_vac_state);
+                        idx_to_vaccinate3 = min(rand(self.N,1),idx_treat_today) > 1-vac_rate;
+                        sum(idx_to_vaccinate3);
+                        new_vac_state(idx_to_vaccinate3) = 1; 
+                        size(new_vac_state);
+                        sum(new_vac_state);
 
-                    self.vaccinated_since(idx_to_vaccinate3) = self.today;
-                    self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1);
-                    
-                    
+                        self.vaccinated_since(idx_to_vaccinate3) = self.today;
+                        self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1);
+                        
+                        sum(idx_to_vaccinate3,1); %does seem to be working!
+                    end
+                    sum(new_vac_state)
                     % Option to screen traced individuals rather than treat
                     % today (ignore if we are using a point-of-care test)
                     idx_prescreen = false(self.N,1);              

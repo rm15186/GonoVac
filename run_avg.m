@@ -30,14 +30,14 @@
         
     %% initialise model (create new model object)
         
-    all_data = zeros(1826,2,100);
+    all_data = zeros(n_Days+1,2,10);
     
-    for i = 1:100
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
+    for i = 1:10
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,1]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
-        n_Days = 5*365;
+        n_Days = 1*365;
         gono_model.simulate(n_Days);
         
     
@@ -96,3 +96,16 @@
                     title('Cumulative drug doses administered');
                     box on;
                     grid on;
+                    
+                figure('name','Dosage','color','w');
+                    hold on;
+                    data.vac_doses_today;
+                    data.births;
+                    plot([0:n_Days], cumsum(data.vac_doses_today),'b-');
+                    plot([0:n_Days], cumsum(data.births),'r-');
+                    legend('vaccine doses','births');
+                    xlabel('Time (days)');
+                    ylabel('Number of vaccine doses')
+                    title('Cumulative vaccine doses administered');
+                    box on;
+                    grid on;    
