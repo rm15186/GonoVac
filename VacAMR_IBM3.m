@@ -148,6 +148,8 @@ classdef VacAMR_IBM3 < handle
         symptoms;           % whether current infection is symptomatic (single value)
         seeks_treatment_on; % day a symptomatic patient will seek treatment (without waiting for recall/trace)
         P;                  % percentage of children vaccinated
+        EFFICACY;           %how well the vaccine prevents the disease
+        LENGTHOFPROTECTION; %how long the vaccine lasts in years
         % screening (recall) and tracing notification arrays
         % Nx3 arrays 
         %  col 1: day of recall/trace issue
@@ -265,6 +267,8 @@ classdef VacAMR_IBM3 < handle
                 self.ALLOW_COINFECTION = params.ALLOW_COINFECTION;
                 self.ALLOW_TREAT = params.ALLOW_TREAT; %all treatment is ceft
                 self.P = 0.85; %TODO this is dodgy put it in the param file
+                self.EFFICACY = 0.9;
+                self.LENGTHOFPROTECTION = 3;
        
                 %-----------------------------------------------------------------
                 
@@ -691,6 +695,9 @@ classdef VacAMR_IBM3 < handle
                     [new_state,new_vac_state] = self.birth_death(new_state, new_vac_state);
                     
                     %new_vac_state working
+                    
+                  %% Loss of vaccine protection
+                  new_vac_state = loss_of_vaccine(self, new_vac_state);
 
                   %% Treatment seeking
                     % 1) For symptomatic individuals seeking treatment, including 
@@ -754,10 +761,10 @@ classdef VacAMR_IBM3 < handle
                             fprintf([reverseStr, msg]);
                             reverseStr = repmat(sprintf('\b'), 1, length(msg));
                         else
-                            percentDone = 100 * day_count / n_Days;
-                            msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
-                            fprintf([reverseStr, msg]);
-                            reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
+                            %percentDone = 100 * day_count / n_Days;
+                            %msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
+                            %fprintf([reverseStr, msg]);
+                            %reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
                         end
                     end
                     
@@ -928,7 +935,7 @@ classdef VacAMR_IBM3 < handle
                                 & isnan(self.seeks_treatment_on(idx_infected_today))...
                                 & (rand(sum(idx_infected_today),1) < self.P_SEEKS_TREATMENT);
                 n_willseek = sum(idx_willseek,1);
-                %TODO vaccinated people less likely to seek treatment,
+                %TODO vaccinated people less likely to seek treatment??
                 %think they are protected?
                 
                 % normally distributed individual lab test and recall delays (integer rounded)
@@ -972,7 +979,6 @@ classdef VacAMR_IBM3 < handle
                 % independent prob. of recovering on any day
 
                 % (excludes indivs. infected this time step)
-                % TODO loss of protection function may be similar to this
                 recover_rate = self.R*current_state;
 
                 % individuals to recover today
@@ -995,6 +1001,17 @@ classdef VacAMR_IBM3 < handle
                 
             
             end
+            
+            function [new_vac_state] = loss_of_vaccine(self, new_vac_state)
+                idx_lost_protection = min(rand(self.N,1),new_vac_state) > 1-1/(365*3); %should be a param 
+                size(idx_lost_protection);
+                sum(idx_lost_protection); %looks reasonable
+                new_vac_state(idx_lost_protection) = 0; 
+                size(new_vac_state);
+                %self.vaccinated_since(idx_lost_protection) = NaN; 
+                %is this necessary?
+            end
+            
             
             function [new_state, new_vac_state] = birth_death(self, new_state, new_vac_state)
  
@@ -1024,7 +1041,6 @@ classdef VacAMR_IBM3 < handle
                 new_vac_state(idx_birthdeath) = 0; %initialise as unvaccinated
                 
                 %vaccinating new people
-                %TODO turn this on and off 
                 %if V1 = 1 or something
                 %too many people are being born, make sense with param,
                 %param is odd
@@ -1096,11 +1112,25 @@ classdef VacAMR_IBM3 < handle
                 if self.vac(2)
                     %fprintf('2')
                     vac_offer_rate = 0.8;
-                    vac_acceptance_rate = 0.5;
-                    vac_rate = vac_offer_rate*vac_acceptance_rate;
-
-                    idx_to_vaccinate2 = min(rand(self.N,1),idx_screened) > 1-vac_rate;
+                    vac_acceptance_rate = 0.5; %TODO should be params
+                    vac_rate = vac_offer_rate*vac_acceptance_rate;                     
+                    
+                    %decide who needs the vaccination
+                    idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
+                    %sum(idx_never_vac) %1000 always :(
+                    idx_old_vac = self.today-self.vaccinated_since > 3*365;  %people who last had it 3 years ago or more
+                    %sum(idx_old_vac) %sometimes a few
+                    idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
+                   
+                    %of these who is being screened today
+                    idx_offer_today = idx_need_vac.*idx_screened;
+                    sum(idx_offer_today);
+   
+                    idx_to_vaccinate2 = min(rand(self.N,1),idx_offer_today) > 1-vac_rate;
+                    %sum(idx_to_vaccinate2,1)
+                   
                     new_vac_state(idx_to_vaccinate2) = 1; 
+                   % sum(new_vac_state)
 
                     self.vaccinated_since(idx_to_vaccinate2) = self.today;
                     self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate2,1);
