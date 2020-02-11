@@ -33,7 +33,7 @@
     all_data = zeros(n_Days+1,2,10);
     
     for i = 1:100
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,1]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,1,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days

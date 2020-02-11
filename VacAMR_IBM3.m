@@ -367,10 +367,10 @@ classdef VacAMR_IBM3 < handle
                     self.counters.incidence_either = 0;
                     self.counters.incidence_new = 0;
                     
-                    %TODO update these counters somewhere
-                    self.counters.current_vac = 0; %how many people are currently vaccinated
+                  
+                    self.counters.current_vac = 0; %how many people are currently vaccinated   %TODO update this one
                     self.counters.vac_doses_today = 0; %how many people have been vaccinated today
-                    self.counters.vac_doses = 0; %how many doses of the vaccine have been given
+                    self.counters.vac_doses = 0; %how many doses of the vaccine have been given %TODO? 
                     self.counters.births = 0;
 
                     % number of people who attended after voluntarily seeking at each time step
@@ -652,7 +652,7 @@ classdef VacAMR_IBM3 < handle
                     % dynamics after specified number of days
                     self.update_params();
                     
-                    % update today's partnership network ever RESTRICT_RATE days
+                    % update today's partnership network every RESTRICT_RATE days
                     if mod(self.today-1,self.RESTRICT_RATE) == 0
                         self.restrict_adj3();
                     end
@@ -689,7 +689,7 @@ classdef VacAMR_IBM3 < handle
                     new_state = self.natural_recovery(current_state, new_state);
                     
                   %% Births / Deaths    
-                  %FIXME this should output a state and a vacstate!
+             
                     %new_state = self.birth_death(new_state, new_vac_state);
                     %size(new_state)
                     [new_state,new_vac_state] = self.birth_death(new_state, new_vac_state);
@@ -697,8 +697,10 @@ classdef VacAMR_IBM3 < handle
                     %new_vac_state working
                     
                   %% Loss of vaccine protection
+                  ns = new_vac_state;
                   new_vac_state = loss_of_vaccine(self, new_vac_state);
-
+                  sum(new_vac_state) < sum(ns); %it is changing sometimes
+                  
                   %% Treatment seeking
                     % 1) For symptomatic individuals seeking treatment, including 
                     %  previously symptomatic who have since recovered naturally
@@ -1003,10 +1005,11 @@ classdef VacAMR_IBM3 < handle
             end
             
             function [new_vac_state] = loss_of_vaccine(self, new_vac_state)
-                idx_lost_protection = min(rand(self.N,1),new_vac_state) > 1-1/(365*3); %should be a param 
+                idx_lost_protection = min(rand(self.N,1),new_vac_state) > 1-1/(365*0.5); %should be a param 
                 size(idx_lost_protection);
                 sum(idx_lost_protection); %looks reasonable
                 new_vac_state(idx_lost_protection) = 0; 
+                sum(idx_lost_protection);
                 size(new_vac_state);
                 %self.vaccinated_since(idx_lost_protection) = NaN; 
                 %is this necessary?
