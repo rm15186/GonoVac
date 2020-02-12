@@ -150,6 +150,10 @@ classdef VacAMR_IBM3 < handle
         P;                  % percentage of children vaccinated
         EFFICACY;           %how well the vaccine prevents the disease
         LENGTHOFPROTECTION; %how long the vaccine lasts in years
+        OFFERVACCINE;       % likelihood of being offered the vaccine when you visit a clinic
+        ACCEPTVACCINE;      % likelihood of accepting a vaccine when its offered.
+        %TODO 2 above might be different for screening and diagnosis
+        
         % screening (recall) and tracing notification arrays
         % Nx3 arrays 
         %  col 1: day of recall/trace issue
@@ -221,7 +225,7 @@ classdef VacAMR_IBM3 < handle
                 %  set values from inputs
                 self.N = N;
                 
-                self.vac = vac
+                self.vac = vac;
                 
                 
                 % for this AMR / non-AMR implementation, fix n_Strains=2
@@ -267,8 +271,10 @@ classdef VacAMR_IBM3 < handle
                 self.ALLOW_COINFECTION = params.ALLOW_COINFECTION;
                 self.ALLOW_TREAT = params.ALLOW_TREAT; %all treatment is ceft
                 self.P = 0.85; %TODO this is dodgy put it in the param file
-                self.EFFICACY = 0.9;
-                self.LENGTHOFPROTECTION = 3;
+                self.EFFICACY = 0.9; %90% protection from infection
+                self.LENGTHOFPROTECTION = 3; %years
+                self.OFFERVACCINE = 0.9; 
+                self.ACCEPTVACCINE = 0.5;
        
                 %-----------------------------------------------------------------
                 
@@ -368,9 +374,9 @@ classdef VacAMR_IBM3 < handle
                     self.counters.incidence_new = 0;
                     
                   
-                    self.counters.current_vac = 0; %how many people are currently vaccinated   %TODO update this one
                     self.counters.vac_doses_today = 0; %how many people have been vaccinated today
-                    self.counters.vac_doses = 0; %how many doses of the vaccine have been given %TODO? 
+                    self.counters.vac_doses = 0; %how many doses of the vaccine have been given %TODO?
+                    self.counters.current_vac = 0; %how many people are currently PROTECTED by the vaccine
                     self.counters.births = 0;
 
                     % number of people who attended after voluntarily seeking at each time step
@@ -610,10 +616,9 @@ classdef VacAMR_IBM3 < handle
                 self.counters.n_traced = cat(1,self.counters.n_traced,zeros(n_Days,self.n_Strains+1));
                 self.counters.n_recalled = cat(1,self.counters.n_recalled,zeros(n_Days,self.n_Strains+1));
                 
-                self.counters.current_vac = cat(1,self.counters.current_vac,zeros(n_Days,1));
-                %self.counters.current_vac_new = cat(1,self.counters.current_vac_new,zeros(n_Days,1))
-                self.counters.vac_doses = cat(1,self.counters.vac_doses,zeros(n_Days,1));
+                self.counters.vac_doses = cat(1,self.counters.vac_doses,zeros(n_Days,1)); %this isnt used
                 self.counters.vac_doses_today = cat(1,self.counters.vac_doses_today,zeros(n_Days,1));
+                self.counters.current_vac = cat(1,self.counters.current_vac,zeros(n_Days,1));
                 self.counters.births = cat(1,self.counters.births,zeros(n_Days,1));
                 
                 self.mean_degree_current = cat(1,self.mean_degree_current,zeros(n_Days,2));
@@ -694,13 +699,11 @@ classdef VacAMR_IBM3 < handle
                     %size(new_state)
                     [new_state,new_vac_state] = self.birth_death(new_state, new_vac_state);
                     
-                    %new_vac_state working
+                    %sum(new_vac_state) %working
                     
                   %% Loss of vaccine protection
                   ns = new_vac_state;
                   new_vac_state = loss_of_vaccine(self, new_vac_state);
-                  sum(new_vac_state) < sum(ns); %it is changing sometimes
-                  
                   %% Treatment seeking
                     % 1) For symptomatic individuals seeking treatment, including 
                     %  previously symptomatic who have since recovered naturally
@@ -763,10 +766,10 @@ classdef VacAMR_IBM3 < handle
                             fprintf([reverseStr, msg]);
                             reverseStr = repmat(sprintf('\b'), 1, length(msg));
                         else
-                            %percentDone = 100 * day_count / n_Days;
-                            %msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
-                            %fprintf([reverseStr, msg]);
-                            %reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
+                            percentDone = 100 * day_count / n_Days;
+                            msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
+                            fprintf([reverseStr, msg]);
+                            reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
                         end
                     end
                     
@@ -820,8 +823,9 @@ classdef VacAMR_IBM3 < handle
                         end
                     end
                         
-
-                end    
+                self.counters.current_vac(self.today+1) = sum(self.vac_state(:,self.today));
+                
+                end
                 loop_elapsed = toc;
                 %diary on;
 
@@ -1005,7 +1009,8 @@ classdef VacAMR_IBM3 < handle
             end
             
             function [new_vac_state] = loss_of_vaccine(self, new_vac_state)
-                idx_lost_protection = min(rand(self.N,1),new_vac_state) > 1-1/(365*0.5); %should be a param 
+                y = self.LENGTHOFPROTECTION;
+                idx_lost_protection = min(rand(self.N,1),new_vac_state) > 1-1/(365*y); 
                 size(idx_lost_protection);
                 sum(idx_lost_protection); %looks reasonable
                 new_vac_state(idx_lost_protection) = 0; 
@@ -1031,10 +1036,9 @@ classdef VacAMR_IBM3 < handle
                 
                 new_vac_state = new_vac_state;
                 size(new_vac_state);
-                idx_birthdeath = rand(self.N,1) < self.MU;%0.000001 is more accurate
+                idx_birthdeath = rand(self.N,1) < self.MU;
                 new_state(idx_birthdeath,:) = 0;
                 new_vac_state(idx_birthdeath) = 0;
-                 %size(new_vac_state);
    
                 self.counters.births(self.today+1) = sum(idx_birthdeath);
                 sum(idx_birthdeath); 
@@ -1042,21 +1046,19 @@ classdef VacAMR_IBM3 < handle
                 % i.e. population renewal, infected --> susceptible (all strains)
 
                 new_vac_state(idx_birthdeath) = 0; %initialise as unvaccinated
-                
-                %vaccinating new people
-                %if V1 = 1 or something
-                %too many people are being born, make sense with param,
-                %param is odd
+               
+                %vaccinating new people joiniing the population
                 if self.vac(1)
                 %Childhood Vaccination strategy 1 - should this be a new
                 %function??
                     %fprintf('1')
                     idx_to_vaccinate1 = min(rand(self.N,1),idx_birthdeath) > 1-self.P;
                     new_vac_state(idx_to_vaccinate1) = 1; 
+                    sum(idx_to_vaccinate1);
+                    sum(new_vac_state);
                     %any(new_vac_state); it is working!
                     self.vaccinated_since(idx_to_vaccinate1) = self.today;
                     self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
-                    %self.counters.current_vac(self.today+1) = self.counters(self.today+1)+1
                 end
                 % clear notifications for deceased individuals
                 self.recall_notify(idx_birthdeath,:) = NaN;
@@ -1246,8 +1248,23 @@ classdef VacAMR_IBM3 < handle
                         vac_offer_rate = 0.8;
                         vac_acceptance_rate = 0.5;
                         vac_rate = vac_offer_rate*vac_acceptance_rate;
+                        
+                        %what if theyve just been vaccinated at screening?
+                        %whats the point of doing it again?
+                        %do we want to vaccinate more frequently that 3
+                        %years? maybe there are sideffects
+                        
+                        %Only vaccinate people if they've not had it in the
+                        %last year 
+                        idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
+                         %sum(idx_never_vac) %1000 always :(
+                        idx_old_vac = self.today-self.vaccinated_since > 1*365;  %people who last had it 1 years ago or more
+                        
+                        idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
+                        
+                        idx_offer_vac = idx_need_vac.*idx_treat_today;
 
-                        idx_to_vaccinate3 = min(rand(self.N,1),idx_treat_today) > 1-vac_rate;
+                        idx_to_vaccinate3 = min(rand(self.N,1),idx_offer_vac) > 1-vac_rate;
                         sum(idx_to_vaccinate3);
                         new_vac_state(idx_to_vaccinate3) = 1; 
                         size(new_vac_state);

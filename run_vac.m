@@ -13,6 +13,8 @@
         LOW_MEM = false;
         
     % load preset simulation parameters from external file
+    
+    
         load('base_params.mat','params');
      
     % you can edit (baseline) parameters by overwriting the preset values, e.g.
@@ -23,7 +25,9 @@
             % p0(2) = proportion of positive cases with AMR component
             % p0(3) = proportion of coinfection given AMR
             params.p0 = [0.2 0.1 0];
-            vac = [1,0,0];
+    
+    %input to function telling it which vaccine strategy to use        
+        vac = [1,0,0];
         
     % display all parameters
         params
@@ -62,8 +66,8 @@
             % of the daily dosage of each drug
                 figure('name','Dosage','color','w');
                     hold on;
-                    size(cumsum(data.cipr))
-                    size([0:n_Days])
+                    size(cumsum(data.cipr));
+                    size([0:n_Days]);
                     plot([0:n_Days], cumsum(data.cipr),'b-');
                     plot([0:n_Days], cumsum(data.cefta),'r-');
                     legend('Cipr/A','Ceft/A','location','northwest');
@@ -87,3 +91,12 @@
                     box on;
                     grid on;
                     
+                figure('name','people Vaccinated');
+                    hold on;
+                    size(data.current_vac);
+                    size([0:n_Days]);
+                    plot([0:n_Days], data.current_vac);
+                    title('No. of people vaccinated over time');
+                    box on;
+                    grid on;
+                
