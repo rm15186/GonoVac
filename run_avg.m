@@ -5,11 +5,12 @@
     clc;
     close all;
     
-    NSims = 5
+    NSims = 100;
 
     % General parmeters 
         N = 1000;          % population size
-        n_Days = 5*365;     % days to simulate
+        n_Days = 5*365;     % days to simulate 
+        %fewer than 10 days and the error bars behave strangely
     
         VERBOSE = true;
         LOW_MEM = false;
@@ -33,6 +34,8 @@
     %% initialise model (create new model object)
         
     all_data = zeros(n_Days+1,2,10);
+    all_vac_doses = zeros(n_Days+1,1);
+    all_vac_current = zeros(n_Days+1,1);
     
     for i = 1:NSims
         gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,1,0]);
@@ -48,6 +51,10 @@
         data = gono_model.counters;
         prev_data = NSims*data.prevalence./N;
         all_data(:,:,i) = prev_data;
+        all_vac_doses(:,i) = data.vac_doses_today;
+        all_vac_current(:,i) = data.current_vac;
+        
+        %TODO avg vaccinated people... extract here within loop
         
     end
         % plot prevalence time-series for whole simulation
@@ -55,7 +62,7 @@
             %gono_model.plot_prev(data, [0 n_Days], [])
         
         % manual plots (examples)
-            % get prevalence (per strain) from counter variable
+            % get prevalence (per strain) from counter varfiable
             % (not yet normalised with respect to the population size)
             
             
@@ -66,9 +73,16 @@
             %standard deviation at all points for plotting confidence
             %intervals, if we want to do that
             conf = std(all_data,0,3);
+            size(conf)
             %quartiles for error bars that dont go below 0
             i25 = quantile(all_data,0.25,3); %25th percentile
             i75 = quantile(all_data,0.75,3);%75th percentile
+            
+            avg_vac_current = mean(all_vac_current,2);
+            std_vac_current = std(all_vac_current,0,2);
+            avg_vac_doses = mean(all_vac_doses,2);
+            std_vac_doses = std(all_vac_doses,0,2);
+            
             
            
            
@@ -79,8 +93,10 @@
                 hold on;
                 %plot([0:n_Days],plot_data(:,1),'b-');
                 %plot([0:n_Days],plot_data(:,2),'r-');
-                shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
-                shadedErrorBar([0:n_Days],plot_data(:,2),[plot_data(:,2)-i25(:,2),i75(:,2)-plot_data(:,2)],'lineprops','r');
+                shadedErrorBar([0:n_Days],plot_data(:,1),[conf(:,1),conf(:,1)],'lineprops','b');
+                shadedErrorBar([0:n_Days],plot_data(:,2),[conf(:,2),conf(:,2)],'lineprops','r');
+                %shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
+                %shadedErrorBar([0:n_Days],plot_data(:,2),[plot_data(:,2)-i25(:,2),i75(:,2)-plot_data(:,2)],'lineprops','r');
                 legend('non-AMR','AMR');
                 xlabel('Time (days)')
                 ylabel('Average Prevalence (%)');
@@ -111,6 +127,7 @@
             
             % drug administration of each drug given by the cumulative sum
             % of the daily dosage of each drug
+            %TODO avg drug doses
                 figure('name','Dosage','color','w');
                     hold on;
                     plot([0:n_Days], cumsum(data.cipr),'b-');
@@ -134,3 +151,25 @@
                     title('Cumulative vaccine doses administered');
                     box on;
                     grid on;    
+                
+                figure('name','Average doses of vaccine');
+                    hold on;
+                    %plot([0:n_Days], cumsum(avg_vac_doses));
+                    shadedErrorBar([0:n_Days],cumsum(avg_vac_doses),[std_vac_doses(:,1),std_vac_doses(:,1)])
+                    xlabel('Time (days)');
+                    ylabel('No of vaccine doses given');
+                    title('average vaccine doeses given');
+                    box on;
+                    grid on;
+                    
+                figure('name','average no. of vaccinated people');
+                    hold on;
+                    plot([0:n_Days], avg_vac_current);
+                    shadedErrorBar([0:n_Days],avg_vac_current,[std_vac_current(:,1),std_vac_current(:,1)])
+                    xlabel('Time (days)');
+                    ylabel('average no of people protected by the vaccine');
+                    title('average no of people protected');
+                    box on;
+                grid on;
+             
+                    

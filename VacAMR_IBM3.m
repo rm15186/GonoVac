@@ -220,7 +220,7 @@ classdef VacAMR_IBM3 < handle
                 end
                 
                 % debug console output ON/OFF
-                self.DEBUG = false
+                self.DEBUG = false;
                 
                 %  set values from inputs
                 self.N = N;
@@ -231,6 +231,7 @@ classdef VacAMR_IBM3 < handle
                 % for this AMR / non-AMR implementation, fix n_Strains=2
                 % (dont even attempt changing this value as much of the code now
                 % relies on this being equal to 2!)
+                %so changing this so we have 3 strains could be a nightmare
                 self.n_Strains = 2;
                 
                 % Set parameter values from params structure
@@ -261,7 +262,7 @@ classdef VacAMR_IBM3 < handle
                 self.P_SEEKS_TREATMENT = params.P_SEEKS_TREATMENT;
                 self.NON_AMR_MAX_DELAY = params.NON_AMR_MAX_DELAY;
                 self.NON_AMR_MAX_PARTNERS = params.NON_AMR_MAX_PARTNERS;
-                self.P_BLINDTREAT_AS_AMR = params.P_BLINDTREAT_AS_AMR; 
+                self.P_BLINDTREAT_AS_AMR = 0.8;%params.P_BLINDTREAT_AS_AMR; 
                 self.ENABLE_nonAMR_RECALL = params.ENABLE_nonAMR_RECALL;
                 self.ENABLE_nonAMR_TRACE = params.ENABLE_nonAMR_TRACE;
                 self.ENABLE_POCT = params.ENABLE_POCT;
@@ -573,7 +574,7 @@ classdef VacAMR_IBM3 < handle
                 % Population data updated for day zero
                 self.today = 0;       
                 
-                self.burn_in = params.burn_in;
+                self.burn_in =  params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
                 
 
             
@@ -822,8 +823,9 @@ classdef VacAMR_IBM3 < handle
                            
                         end
                     end
-                        
-                self.counters.current_vac(self.today+1) = sum(self.vac_state(:,self.today));
+                
+         
+                self.counters.current_vac(self.today+1) = sum(self.vac_state(:,self.today)); %index in pos 2 invalid???
                 
                 end
                 loop_elapsed = toc;
