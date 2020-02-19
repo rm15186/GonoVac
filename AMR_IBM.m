@@ -1,4 +1,3 @@
-%% RM adding vaccination into model via a new vector
 %% Two-strain (nonAMR/AMR) coinfection SIS model for Gonorrhea
 %  This is the main class library - run model via the run_simple.m script
 %   

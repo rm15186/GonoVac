@@ -8,8 +8,8 @@
     NSims = 100;
 
     % General parmeters 
-        N = 1000;          % population size
-        n_Days = 5*365;     % days to simulate 
+        N = 10000;          % population size
+        n_Days = 10*365;     % days to simulate 
         %fewer than 10 days and the error bars behave strangely
     
         VERBOSE = true;
@@ -31,18 +31,19 @@
         params
         
         
-    %% initialise model (create new model object)
-        
+    
+    %initialise counters    
     all_data = zeros(n_Days+1,2,10);
     all_vac_doses = zeros(n_Days+1,1);
     all_vac_current = zeros(n_Days+1,1);
-    
+    all_drug_doses = zeros(n_Days+1,2,1);
+    %% initialise model (create new model object)
     for i = 1:NSims
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,1,0]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
-        n_Days = 5*365;
+        %n_Days = 5*365;
         gono_model.simulate(n_Days);
         
     
@@ -53,8 +54,18 @@
         all_data(:,:,i) = prev_data;
         all_vac_doses(:,i) = data.vac_doses_today;
         all_vac_current(:,i) = data.current_vac;
+        all_drug_doses(:,1,i) = data.cipr;
+        all_drug_doses(:,2,i) = data.cefta;
         
-        %TODO avg vaccinated people... extract here within loop
+        %TODO avg drug doses
+        %fprintf('Simulations complete = ')
+        %reverseStr = '';
+        %msg = [sprintf('Simulations complete... %3.2f', i)];
+        %fprintf([reverseStr,msg]);
+        %everseStr = repmat(sprintf('\b'), 1, length(msg))
+        
+        msg = ['Simulations completed = ',num2str(i), ' out of ', num2str(NSims)];
+        disp(msg)
         
     end
         % plot prevalence time-series for whole simulation

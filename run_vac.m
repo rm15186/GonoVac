@@ -27,7 +27,7 @@
             params.p0 = [0.2 0.1 0];
     
     %input to function telling it which vaccine strategy to use        
-        vac = [1,0,0];
+        vac = [0,0,0];
         
     % display all parameters
         params
@@ -36,7 +36,7 @@
         gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, vac); %turn on and off strategies here
         
     %% run simulation for n_Days # of days
-        n_Days = 5*365;
+        n_Days = 10*365;
         gono_model.simulate(n_Days);
     
     %% extract all counter data from model object 

@@ -166,6 +166,11 @@ classdef VacAMR_IBM3 < handle
         
         burn_in;            % whether or not we are in a 'burn-in' cycle
                             %   to achieve a set AMR ratio etc.
+                            % RM acheive AMR ratio OR wait 5 years for
+                            % prevalence to settle down, this may take
+                            % longer than 5 years, depends on beta, waiting
+                            % 27 years 10000 days is probably safer, cant
+                            % really do it on my laptop
         
         % counters
         counters;           % structure array of counters (data outputs)
@@ -272,7 +277,7 @@ classdef VacAMR_IBM3 < handle
                 self.ALLOW_COINFECTION = params.ALLOW_COINFECTION;
                 self.ALLOW_TREAT = params.ALLOW_TREAT; %all treatment is ceft
                 self.P = 0.85; %TODO this is dodgy put it in the param file
-                self.EFFICACY = 0.9; %90% protection from infection
+                self.EFFICACY = 0.9; %90% protection from infection every day
                 self.LENGTHOFPROTECTION = 3; %years
                 self.OFFERVACCINE = 0.9; 
                 self.ACCEPTVACCINE = 0.5;
@@ -574,7 +579,7 @@ classdef VacAMR_IBM3 < handle
                 % Population data updated for day zero
                 self.today = 0;       
                 
-                self.burn_in =  params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
+                self.burn_in =  0;%1;%params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
                 
 
             
@@ -644,7 +649,7 @@ classdef VacAMR_IBM3 < handle
                 
                 % day zero (self.today = 0) is at array position 1
                 %for day = self.today+1:self.today+n_Days
-                while self.today <= start_day + n_Days - 1
+                while self.today <= start_day + n_Days - 1 
                     
                     % day counter for this simulation
                     day_count = day_count + 1;
@@ -774,16 +779,21 @@ classdef VacAMR_IBM3 < handle
                         end
                     end
                     
+                    %no. of people vaccinated, works for different levels of
+                %protection
+                self.counters.current_vac(self.today+1) = sum(self.vac_state(:,self.today)~= 0); %index in pos 2 invalid - burn in???
+                    
                   %% Burn-in (if selected)
                     % TESTING ONLY - NOT A STABLE METHOD OF EQUILIBRATING!!
                     if self.burn_in == true
                         % burn in
                         AMR_ratio = self.counters.prevalence(self.today,2) / self.counters.prev_either(self.today);
-
                         conditions = all([AMR_ratio >= 0.32]);
+                        %stop when we meet the conditions, i dont care
+                        %about the ratio, i just want to get the prevalence
+                        %stable
                         
-                        if conditions == true || self.today == (start_day + n_Days - 1)
-                           
+                        if  self.today == n_Days - 1 %or this could be another parameter relating to how long burn in lasts
                            % update state / counters for day zero with
                            % today's values
                            if self.LOW_MEM
@@ -803,29 +813,32 @@ classdef VacAMR_IBM3 < handle
                            self.infection_count = zeros(self.N,2);
                            self.counters.infection_count(self.indiv_state(:,1,1)==1,1) = 1;
                            self.counters.infection_count(self.indiv_state(:,2,1)==1,2) = 1;
+                           %should update the vaccine ones here too, they
+                           %should not have kicked in yet!
                            
                            % adjust notifications / dates
                            self.infected_since = self.infected_since - self.today;
                            self.recall_notify(:,1:2) = self.recall_notify(:,1:2) - self.today;
                            self.trace_notify(:,1:2) = self.trace_notify(:,1:2) - self.today;
                            self.seeks_treatment_on = self.seeks_treatment_on - self.today;
-
+                           %vaccine flags should be updated, but they
+                           %shouldnt have been set in burn in!
                            
                            % reset day counters for this loop
-                           start_day = 0;
-                           self.today = 0;
+                           start_day = 0; %where else do we use start_day?
+                           self.today = 0; %reset time
                            
                            % burn-in completed?
-                           if conditions == true
+                           %this is unneccessay if
+                           %if conditions == true || self.today ==  n_Days - 1
                                day_count = 0;
                                self.burn_in = false;
-                           end
+                           %end
                            
                         end
                     end
                 
-         
-                self.counters.current_vac(self.today+1) = sum(self.vac_state(:,self.today)); %index in pos 2 invalid???
+                
                 
                 end
                 loop_elapsed = toc;
@@ -901,7 +914,8 @@ classdef VacAMR_IBM3 < handle
                 
                 % Force of infection given number of partners
                 % with each strain type
-       
+                
+                %RM honestly not 100% sure how this works
                 infect_force = (1 - ( ( 1-repmat(self.BETA,self.N,1) ).^nb_totals )) .* mask;
           
              
@@ -1050,7 +1064,7 @@ classdef VacAMR_IBM3 < handle
                 new_vac_state(idx_birthdeath) = 0; %initialise as unvaccinated
                
                 %vaccinating new people joiniing the population
-                if self.vac(1)
+                if self.vac(1) && self.burn_in == 0
                 %Childhood Vaccination strategy 1 - should this be a new
                 %function??
                     %fprintf('1')
@@ -1116,7 +1130,7 @@ classdef VacAMR_IBM3 < handle
 
                 % Vaccination on Screening
                 %these should be params, should all be within an if
-                if self.vac(2)
+                if self.vac(2) && self.burn_in == 0
                     %fprintf('2')
                     vac_offer_rate = 0.8;
                     vac_acceptance_rate = 0.5; %TODO should be params
@@ -1243,7 +1257,7 @@ classdef VacAMR_IBM3 < handle
                     % [unless precreening or point-of-care enabled below]
                     idx_treat_today = any([idx_seeked, idx_recalled, idx_traced], 2);
                     
-                    if self.vac(3)
+                    if self.vac(3) && self.burn_in == 0 %dont want the vaccine in the burn in
                     %Vaccinate no prescreening - less targeted, more
                     %vaccines
                         %fprintf('hi')
