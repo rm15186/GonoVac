@@ -267,7 +267,7 @@ classdef VacAMR_IBM3 < handle
                 self.P_SEEKS_TREATMENT = params.P_SEEKS_TREATMENT;
                 self.NON_AMR_MAX_DELAY = params.NON_AMR_MAX_DELAY;
                 self.NON_AMR_MAX_PARTNERS = params.NON_AMR_MAX_PARTNERS;
-                self.P_BLINDTREAT_AS_AMR = 0.8;%params.P_BLINDTREAT_AS_AMR; 
+                self.P_BLINDTREAT_AS_AMR = params.P_BLINDTREAT_AS_AMR; %0.8 for a bit of cipr 
                 self.ENABLE_nonAMR_RECALL = params.ENABLE_nonAMR_RECALL;
                 self.ENABLE_nonAMR_TRACE = params.ENABLE_nonAMR_TRACE;
                 self.ENABLE_POCT = params.ENABLE_POCT;
@@ -277,7 +277,7 @@ classdef VacAMR_IBM3 < handle
                 self.ALLOW_COINFECTION = params.ALLOW_COINFECTION;
                 self.ALLOW_TREAT = params.ALLOW_TREAT; %all treatment is ceft
                 self.P = 0.85; %TODO this is dodgy put it in the param file
-                self.EFFICACY = 0.9; %90% protection from infection every day
+                self.EFFICACY = 0.5; %90% protection from infection every day
                 self.LENGTHOFPROTECTION = 3; %years
                 self.OFFERVACCINE = 0.9; 
                 self.ACCEPTVACCINE = 0.5;
@@ -922,7 +922,10 @@ classdef VacAMR_IBM3 < handle
                 % susceptible individuals to infect with specific strain
                 % today
                 double_vac_state = [current_vac_state,current_vac_state];       
-                idx_infect = max(rand(self.N,self.n_Strains),double_vac_state) < infect_force; 
+                %idx_infect = max(rand(self.N,self.n_Strains),double_vac_state) < infect_force;
+                %decrease risk for vaccinated people, according to def. of
+                %efficacy
+                idx_infect = rand(self.N,self.n_Strains) < infect_force.*(1.-double_vac_state);  
                 %idx_infect = rand(self.N,self.n_Strains) < infect_force;
        
                 %idx_infect = sprand(infect_force) > (1-infect_force);

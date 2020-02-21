@@ -8,7 +8,7 @@
     NSims = 100;
 
     % General parmeters 
-        N = 10000;          % population size
+        N = 1000;          % population size
         n_Days = 10*365;     % days to simulate 
         %fewer than 10 days and the error bars behave strangely
     
@@ -39,7 +39,7 @@
     all_drug_doses = zeros(n_Days+1,2,1);
     %% initialise model (create new model object)
     for i = 1:NSims
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,0]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [1,0,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
@@ -50,7 +50,7 @@
     %% extract all counter data from model object 
     % (or can be referenced directly)
         data = gono_model.counters;
-        prev_data = NSims*data.prevalence./N;
+        prev_data = 100*data.prevalence./N;
         all_data(:,:,i) = prev_data;
         all_vac_doses(:,i) = data.vac_doses_today;
         all_vac_current(:,i) = data.current_vac;
