@@ -4,9 +4,10 @@
 % this is a script not a function not sure how to make it output anything,
 % do i need to change the function?
 
-    clear all;
-    clc;
-    close all;
+    %clear all;
+    %clc;
+    %close all;
+    y = hello
 
     % General parmeters 
         N = 1000;          % should be 10000 but it makes a long time so 1000 for vac testing
