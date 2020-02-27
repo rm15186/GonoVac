@@ -579,7 +579,7 @@ classdef VacAMR_IBM3 < handle
                 % Population data updated for day zero
                 self.today = 0;       
                 
-                self.burn_in =  0;%1;%params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
+                self.burn_in =  1;%0;%1;%params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
                 
 
             
@@ -1264,10 +1264,10 @@ classdef VacAMR_IBM3 < handle
                     %Vaccinate no prescreening - less targeted, more
                     %vaccines
                         %fprintf('hi')
-                        vac_offer_rate = 0.8;
-                        vac_acceptance_rate = 0.5;
-                        vac_rate = vac_offer_rate*vac_acceptance_rate;
-                        
+                        %vac_offer_rate = 0.8;
+                        %vac_acceptance_rate = 0.5;
+                        %vac_rate = vac_offer_rate*vac_acceptance_rate;
+                        vac_rate = 0.45;
                         %what if theyve just been vaccinated at screening?
                         %whats the point of doing it again?
                         %do we want to vaccinate more frequently that 3
@@ -1277,7 +1277,7 @@ classdef VacAMR_IBM3 < handle
                         %last year 
                         idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
                          %sum(idx_never_vac) %1000 always :(
-                        idx_old_vac = self.today-self.vaccinated_since > 1*365;  %people who last had it 1 years ago or more
+                        idx_old_vac = self.today-self.vaccinated_since > 90;  %people who last had it 3 months ago ot more
                         
                         idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
                         
