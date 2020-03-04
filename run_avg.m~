@@ -5,7 +5,7 @@
     clc;
     close all;
     
-    NSims = 100;
+    NSims = 2;
 
     % General parmeters 
         N = 1000;          % population size
@@ -34,15 +34,15 @@
         
     
     %initialise counters, set size here for speed    
-    all_data = zeros(n_Days+1,2,NSims); %prevalence of the individual strains
-    all_either = zeros(n_Days+1,1,NSims); % prevalence of either strain
-    all_vac_doses = zeros(n_Days+1,NSims); 
+    all_data = zeros(n_Days+1,2,NSims);
+    all_either = zeros(n_Days+1,1,NSims);
+    all_vac_doses = zeros(n_Days+1,NSims);
     all_vac_current = zeros(n_Days+1,NSims);
     all_cipr_doses = zeros(n_Days+1,NSims);
     all_cefta_doses = zeros(n_Days+1,NSims);
     %% initialise model (create new model object)
     for i = 1:NSims
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,1,0]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [1,0,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
@@ -55,7 +55,6 @@
         data = gono_model.counters;
         prev_data = 100*data.prevalence./N; %prevalence of both strains
         prev_either_data = 100*data.prev_either/N; %prevalence of either strain
-        size(prev_either_data);
         all_either(:,i) = prev_either_data;
         all_data(:,:,i) = prev_data;
         all_vac_doses(:,i) = data.vac_doses_today;
@@ -63,7 +62,7 @@
         all_cipr_doses(:,1,i) = data.cipr;
         all_cefta_doses(:,1,i) = data.cefta;
         
-        %TODO drug doses error bars
+        %TODO avg drug doses
         %fprintf('Simulations complete = ')
         %reverseStr = '';
         %msg = [sprintf('Simulations complete... %3.2f', i)];
@@ -86,13 +85,12 @@
             %prev_data = 100*data.prevalence./N;
             %size(all_data)
             plot_data = mean(all_data,3);
-            plot_either = mean(all_either,3);
-            size(plot_either);
+            plot_either = mean(all_either,2)
             size(plot_data);
             %standard deviation at all points for plotting confidence
             %intervals, if we want to do that
             conf = std(all_data,0,3);
-            size(conf);
+            size(conf)
             %quartiles for error bars that dont go below 0
             i25 = quantile(all_data,0.25,3); %25th percentile
             i75 = quantile(all_data,0.75,3);%75th percentile
@@ -105,9 +103,9 @@
             std_vac_current = std(all_vac_current,0,2);
             avg_vac_doses = mean(all_vac_doses,2);
             std_vac_doses = std(all_vac_doses,0,2);
-            avg_cipr_doses = mean(all_cipr_doses,3);
+            avg_cipr_doses = mean(all_cipr_doses,2);
             std_cipr_doses = std(all_cipr_doses,0,2);
-            avg_cefta_doses = mean(all_cefta_doses,3);
+            avg_cefta_doses = mean(all_cefta_doses,2);
             std_cefta_doses = std(all_cefta_doses,0,2);
          
            
@@ -156,11 +154,11 @@
             
             % drug administration of each drug given by the cumulative sum
             % of the daily dosage of each drug
-            %TODO error bars
+            %TODO avg drug doses
                 figure('name','Dosage','color','w');
                     hold on;
-                    plot([0:n_Days], cumsum(avg_cipr_doses));
-                    plot([0:n_Days], cumsum(avg_cefta_doses));
+                    plot([0:n_Days], cumsum(avg_cipr_doses),'b-');
+                    plot([0:n_Days], cumsum(avg_cefta_doses),'r-');
                     legend('Cipr/A','Ceft/A','location','northwest');
                     xlabel('Time (days)');
                     ylabel('Number of doses')

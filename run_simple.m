@@ -6,8 +6,8 @@
     close all;
 
     % General parmeters 
-        N = 10000;          % population size
-        n_Days = 10000;% 10*365;     % days to simulate
+        N = 1000;          % population size
+        n_Days = 1000;% 10*365;     % days to simulate
     
         VERBOSE = true;
         LOW_MEM = false;
@@ -31,7 +31,7 @@
         gono_model = AMR_IBM(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
-        n_Days = 10000;%10*365;
+       % n_Days = 1000;%10*365;
         gono_model.simulate(n_Days);
     
     %% extract all counter data from model object 
