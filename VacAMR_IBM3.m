@@ -150,7 +150,7 @@ classdef VacAMR_IBM3 < handle
         P;                  % percentage of children vaccinated
         EFFICACY;           %how well the vaccine prevents the disease
         LENGTHOFPROTECTION; %how long the vaccine lasts in years
-        OFFERVACCINE;       % likelihood of being offered the vaccine when you visit a clinic
+        %OFFERVACCINE;       % likelihood of being offered the vaccine when you visit a clinic
         ACCEPTVACCINE;      % likelihood of accepting a vaccine when its offered.
         %TODO 2 above might be different for screening and diagnosis
         
@@ -248,7 +248,7 @@ classdef VacAMR_IBM3 < handle
                 self.RESTRICT_MAX_PARTNERS = params.RESTRICT_MAX_PARTNERS;
                 self.RESTRICT_RATE = params.RESTRICT_RATE;
                 self.R = params.R;
-                self.MU = params.MU;
+                self.MU = params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
                 self.BETA = params.BETA; %2.23*10-3?
                 self.GAMMA = params.GAMMA;
                 self.PSI = params.PSI;
@@ -277,9 +277,8 @@ classdef VacAMR_IBM3 < handle
                 self.ALLOW_COINFECTION = params.ALLOW_COINFECTION;
                 self.ALLOW_TREAT = params.ALLOW_TREAT; %all treatment is ceft
                 self.P = 0.85; %TODO this is dodgy put it in the param file
-                self.EFFICACY = 0.31; %90% protection from infection every day
+                self.EFFICACY = 0.31; %31% protection from infection every day
                 self.LENGTHOFPROTECTION = 3; %years
-                self.OFFERVACCINE = 1; 
                 self.ACCEPTVACCINE = 0.45;
        
                 %-----------------------------------------------------------------
@@ -384,6 +383,11 @@ classdef VacAMR_IBM3 < handle
                     self.counters.vac_doses = 0; %how many doses of the vaccine have been given %TODO?
                     self.counters.current_vac = 0; %how many people are currently PROTECTED by the vaccine
                     self.counters.births = 0;
+                        
+                    %we dont use this as a counter we store data from the
+                    %counters in it
+                    self.counters.burn_in_prevalence = zeros(1,2);
+                    self.counters.burn_in_prevalence_either = 0;
 
                     % number of people who attended after voluntarily seeking at each time step
                     % (2nd/3rd column: number infected with each strain)
@@ -579,7 +583,7 @@ classdef VacAMR_IBM3 < handle
                 % Population data updated for day zero
                 self.today = 0;       
                 
-                self.burn_in =  0;%1;%params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
+                self.burn_in =  1;%1;%params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
                 
 
             
@@ -626,6 +630,11 @@ classdef VacAMR_IBM3 < handle
                 self.counters.vac_doses_today = cat(1,self.counters.vac_doses_today,zeros(n_Days,1));
                 self.counters.current_vac = cat(1,self.counters.current_vac,zeros(n_Days,1));
                 self.counters.births = cat(1,self.counters.births,zeros(n_Days,1));
+                
+                %should have a burn in days parameter
+                self.counters.burn_in_prevalence = cat(1,self.counters.burn_in_prevalence,zeros(2000,self.n_Strains));
+                self.counters.burn_in_prevalence_either = cat(1,self.counters.burn_in_prevalence_either,zeros(2000,1));
+               
                 
                 self.mean_degree_current = cat(1,self.mean_degree_current,zeros(n_Days,2));
                 
@@ -787,13 +796,14 @@ classdef VacAMR_IBM3 < handle
                     % TESTING ONLY - NOT A STABLE METHOD OF EQUILIBRATING!!
                     if self.burn_in == true
                         % burn in
-                        AMR_ratio = self.counters.prevalence(self.today,2) / self.counters.prev_either(self.today);
-                        conditions = all([AMR_ratio >= 0.32]);
+                        %AMR_ratio = self.counters.prevalence(self.today,2) / self.counters.prev_either(self.today);
+                        %conditions = all([AMR_ratio >= 0.32]);
                         %stop when we meet the conditions, i dont care
                         %about the ratio, i just want to get the prevalence
                         %stable
                         
-                        if  self.today == n_Days - 1 %or this could be another parameter relating to how long burn in lasts
+                        %burn in for 2000 days, looks about right
+                        if  self.today == 1999 
                            % update state / counters for day zero with
                            % today's values
                            if self.LOW_MEM
@@ -808,13 +818,16 @@ classdef VacAMR_IBM3 < handle
                                 self.counters.prev_either(1) = sum(any(self.indiv_state(:,:,self.today+1),2));
                            end
                            
+                           %we do want to plot the end of the burn in, so
+                           %lets store the prevalence data for 1,2,either
+                           burn_in_prevalence = self.counters.prevalence(1,:);
+                           burn_in_prevalence_either = self.counters.prev_either(1);
+                           
                            % reset / update some totals
                            self.counters.drug_count = zeros(self.N,2);
                            self.infection_count = zeros(self.N,2);
                            self.counters.infection_count(self.indiv_state(:,1,1)==1,1) = 1;
                            self.counters.infection_count(self.indiv_state(:,2,1)==1,2) = 1;
-                           %should update the vaccine ones here too, they
-                           %should not have kicked in yet!
                            
                            % adjust notifications / dates
                            self.infected_since = self.infected_since - self.today;
@@ -837,6 +850,9 @@ classdef VacAMR_IBM3 < handle
                            
                         end
                     end
+                    %tell us the burn in prevalence
+                    %burn_in_prevalence
+                    
                 
                 
                 
@@ -1133,16 +1149,13 @@ classdef VacAMR_IBM3 < handle
 
                 % Vaccination on Screening
                 %these should be params, should all be within an if
-                if self.vac(2) && self.burn_in == 0
-                    %fprintf('2')
-                    %vac_offer_rate = 0.8;
-                    %vac_acceptance_rate = 0.5; %TODO should be params
-                    %vac_rate = vac_offer_rate*vac_acceptance_rate;                     
-                    vac_rate = 0.45;
+                if self.vac(2) && self.burn_in == 0                   
+                    vac_rate = self.ACCEPTVACCINE;
+                    y = self.LENGTHOFPROTECTION
                     %decide who needs the vaccination
                     idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
                     %sum(idx_never_vac) %1000 always :(
-                    idx_old_vac = self.today-self.vaccinated_since > 3*365;  %people who last had it 3 years ago or more
+                    idx_old_vac = self.today-self.vaccinated_since > y*365;  %people who last had it y years ago or more
                     %sum(idx_old_vac) %sometimes a few
                     idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
                    
@@ -1263,18 +1276,10 @@ classdef VacAMR_IBM3 < handle
                     if self.vac(3) && self.burn_in == 0 %dont want the vaccine in the burn in
                     %Vaccinate no prescreening - less targeted, more
                     %vaccines
-                        %fprintf('hi')
-                        %vac_offer_rate = 0.8;
-                        %vac_acceptance_rate = 0.5;
-                        %vac_rate = vac_offer_rate*vac_acceptance_rate;
-                        vac_rate = 0.45;
-                        %what if theyve just been vaccinated at screening?
-                        %whats the point of doing it again?
-                        %do we want to vaccinate more frequently that 3
-                        %years? maybe there are sideffects
                         
+                        vac_rate = self.LENGTHOFPROTECTION;
                         %Only vaccinate people if they've not had it in the
-                        %last year 
+                        %last 3 months 
                         idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
                          %sum(idx_never_vac) %1000 always :(
                         idx_old_vac = self.today-self.vaccinated_since > 90;  %people who last had it 3 months ago ot more
@@ -1288,7 +1293,6 @@ classdef VacAMR_IBM3 < handle
                         new_vac_state(idx_to_vaccinate3) = 1; 
                         size(new_vac_state);
                         sum(new_vac_state);
-                        %sum(idx_to_vaccinate3,1)
 
                         self.vaccinated_since(idx_to_vaccinate3) = self.today;
                         self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1); 
@@ -2001,7 +2005,7 @@ classdef VacAMR_IBM3 < handle
                 % save simulation datafile (everything for now!);
                 save(['./outdata/',self.DIR_NAME,'/sim_data.mat']);
                 % and a copy of the class file
-                copyfile('VacAMR_IBM2.m',['./outdata/',self.DIR_NAME,'/VacAMR_IBM2.m']);
+                copyfile('VacAMR_IBM3.m',['./outdata/',self.DIR_NAME,'/VacAMR_IBM3.m']);
                 
                 % console output
                 if self.VERBOSE;fprintf('[DONE]\n\n');end
@@ -2166,9 +2170,9 @@ classdef VacAMR_IBM3 < handle
                 edge_list = [edge_list,ones(length(edge_list),1)];
                 
                 % tests
-                [alpha_cont,x_cont,L_cont] = VacAMR_IBM2.plfit(node_degree);
-                [alpha_int,x_int,L_int] = VacAMR_IBM2.plfit(int_node_degree);
-                [alpha_adj,x_adj,L_adj] = VacAMR_IBM2.plfit(full(sum(adj,2)));
+                [alpha_cont,x_cont,L_cont] = VacAMR_IBM3.plfit(node_degree);
+                [alpha_int,x_int,L_int] = VacAMR_IBM3.plfit(int_node_degree);
+                [alpha_adj,x_adj,L_adj] = VacAMR_IBM3.plfit(full(sum(adj,2)));
                 display(['alpha (continuous): ',num2str(alpha_cont)]);  
                 display(['alpha (integers): ',num2str(alpha_int)]);
                 display(['alpha (network): ',num2str(alpha_adj)]);

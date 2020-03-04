@@ -4,12 +4,13 @@
     clear all;
     clc;
     close all;
-    
-    NSims = 100;
+    %for bc shall we do 500 simulations, burn in of x days, start with 10/%
+    %prevalence
+    NSims = 2;
 
     % General parmeters 
         N = 1000;          % population size
-        n_Days = 2000; %10*365;     % days to simulate 
+        n_Days = 4000; %10*365;     % days to simulate about 5 years
         %fewer than 10 days and the error bars behave strangely
     
         VERBOSE = true;
@@ -26,13 +27,14 @@
             % p0(2) = proportion of positive cases with AMR component
             % p0(3) = proportion of coinfection given AMR
             %params.p0 = [0.2 0.1 0];% original initial prevalence
-            params.p0 = [0.04 0.5 0];
+            params.p0 = [0.1 0.4 0]; % burn in takes less time think its just as good?
+            %params.p0 = [0.04 0.5 0];
         
     % display all parameters
         params
         
         
-    
+    %for working out averages
     %initialise counters, set size here for speed    
     all_data = zeros(n_Days+1,2,NSims); %prevalence of the individual strains
     all_either = zeros(n_Days+1,1,NSims); % prevalence of either strain
@@ -40,9 +42,11 @@
     all_vac_current = zeros(n_Days+1,NSims);
     all_cipr_doses = zeros(n_Days+1,NSims);
     all_cefta_doses = zeros(n_Days+1,NSims);
+    all_burn_in_prev = zeros(2001,2,NSims);
+    all_burn_in_prev_either = zeros(2001,1,NSims);
     %% initialise model (create new model object)
     for i = 1:NSims
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,1,0]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [1,0,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
@@ -62,6 +66,8 @@
         all_vac_current(:,i) = data.current_vac;
         all_cipr_doses(:,1,i) = data.cipr;
         all_cefta_doses(:,1,i) = data.cefta;
+        all_burn_in_prev(:,:,i) = data.burn_in_prevalence;
+        all_burn_in_prev_either = data.burn_in_prevalence_either;
         
         %TODO drug doses error bars
         %fprintf('Simulations complete = ')
@@ -89,9 +95,12 @@
             plot_either = mean(all_either,3);
             size(plot_either);
             size(plot_data);
+            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3);
+            plot_burn_in_prev = mean(all_burn_in_prev,3);
             %standard deviation at all points for plotting confidence
             %intervals, if we want to do that
             conf = std(all_data,0,3);
+            confe = std(all_either,0,3);
             size(conf);
             %quartiles for error bars that dont go below 0
             i25 = quantile(all_data,0.25,3); %25th percentile
@@ -109,7 +118,9 @@
             std_cipr_doses = std(all_cipr_doses,0,2);
             avg_cefta_doses = mean(all_cefta_doses,3);
             std_cefta_doses = std(all_cefta_doses,0,2);
-         
+                
+            size(std_vac_doses)
+            size(std_cipr_doses(:,:,1))
            
            
             %plot 25th and 75th percentiles, not standard deviation as we
@@ -121,7 +132,8 @@
                 %plot([0:n_Days],plot_data(:,2),'r-');
                 shadedErrorBar([0:n_Days],plot_data(:,1),[conf(:,1),conf(:,1)],'lineprops','b');
                 shadedErrorBar([0:n_Days],plot_data(:,2),[conf(:,2),conf(:,2)],'lineprops','r');
-                plot([0:n_Days],plot_either,'k');
+                %plot([0:n_Days],plot_either,'k');
+                shadedErrorBar([0:n_Days],plot_either,[confe,confe],'lineprops','k')
                 %shadedErrorBar([0:n_Days,either_strain,[either_strain-i25e,i75e-either_strain]],'lineprops','k');
                 %shadedErrorBar([0:n_Days],)
                 %shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
@@ -132,35 +144,42 @@
                 box on;
                 grid on;
             
-            
+            %add the overall prevalence and make these thicker
             figure('name', 'Average Prevalence');
                 hold on;
                 plot([0:n_Days],plot_data(:,1),'b-');
                 plot([0:n_Days],plot_data(:,2),'r-');
-                legend('non-AMR','AMR');
+                plot([0:n_Days],plot_either,'k-');
+                legend('non-AMR','AMR','Total Prevalence');
                 xlabel('Time (days)')
                 ylabel('Average Prevalence (%)');
                 box on;
                 grid on;
             
             
-                figure('name','Strain prevalence');
-                    hold on;
-                    plot([0:n_Days],prev_data(:,1),'b-'); % non AMR strain
-                    plot([0:n_Days],prev_data(:,2),'r-'); % AMR strain
-                    legend('non-AMR','AMR');
-                    xlabel('Time (days)')
-                    ylabel('Prevalence (%)');
-                    box on;
-                    grid on;
+%                 figure('name','Strain prevalence');
+%                     hold on;
+%                     plot([0:n_Days],prev_data(:,1),'b-'); % non AMR strain
+%                     plot([0:n_Days],prev_data(:,2),'r-'); % AMR strain
+%                     legend('non-AMR','AMR');
+%                     xlabel('Time (days)')
+%                     ylabel('Prevalence (%)');
+%                     box on;
+%                     grid on;
+                    
+                    
             
             % drug administration of each drug given by the cumulative sum
             % of the daily dosage of each drug
-            %TODO error bars
                 figure('name','Dosage','color','w');
                     hold on;
-                    plot([0:n_Days], cumsum(avg_cipr_doses));
-                    plot([0:n_Days], cumsum(avg_cefta_doses));
+                    %plot([0:n_Days], cumsum(avg_cipr_doses));
+                    %plot([0:n_Days], cumsum(avg_cefta_doses));
+                    size([0:n_Days])
+                    size(cumsum(avg_cipr_doses(:,1)))
+                    size(std_cipr_doses(:,:,1))
+                    shadedErrorBar([0:n_Days], cumsum(avg_cipr_doses(:,1)),[std_cipr_doses(:,:,1),std_cipr_doses(:,:,1)]);
+                    shadedErrorBar([0:n_Days],cumsum(avg_cefta_doses(:,1)),[std_cefta_doses(:,:,1),std_cefta_doses(:,:,1)]);
                     legend('Cipr/A','Ceft/A','location','northwest');
                     xlabel('Time (days)');
                     ylabel('Number of doses')
@@ -168,18 +187,18 @@
                     box on;
                     grid on;
                     
-                figure('name','Dosage','color','w');
-                    hold on;
-                    data.vac_doses_today;
-                    data.births;
-                    plot([0:n_Days], cumsum(data.vac_doses_today),'b-');
-                    plot([0:n_Days], cumsum(data.births),'r-');
-                    legend('vaccine doses','births');
-                    xlabel('Time (days)');
-                    ylabel('Number of vaccine doses')
-                    title('Cumulative vaccine doses administered');
-                    box on;
-                    grid on;    
+%                 figure('name','Dosage','color','w');
+%                     hold on;
+%                     data.vac_doses_today;
+%                     data.births;
+%                     plot([0:n_Days], cumsum(data.vac_doses_today),'b-');
+%                     plot([0:n_Days], cumsum(data.births),'r-');
+%                     legend('vaccine doses','births');
+%                     xlabel('Time (days)');
+%                     ylabel('Number of vaccine doses')
+%                     title('Cumulative vaccine doses administered');
+%                     box on;
+%                     grid on;    
                 
                 figure('name','Average doses of vaccine');
                     hold on;
@@ -200,5 +219,17 @@
                     title('average no of people protected');
                     box on;
                 grid on;
+                
+                %TODO plot end of burn in and then plot effect of vaccine
+                 figure('name','burn in and then vaccine');
+                     hold on;
+                     plot([0:2000],plot_burn_in_prev_either,'k');
+                     plot([0:2000],plot_burn_in_prev(:,1),'b');
+                     plot([0:2000],plot_burn_in_prev(:,2),'r');
+                     xlabel('Time (days)');
+                     ylabel('prevalence in burn in');
+                     title('prevalence over burn in period');
+                     box on;
+                     grid on;
              
                     
