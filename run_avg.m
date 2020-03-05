@@ -42,9 +42,10 @@
     all_vac_current = zeros(n_Days+1,NSims);
     all_cipr_doses = zeros(n_Days+1,NSims);
     all_cefta_doses = zeros(n_Days+1,NSims);
-    all_burn_in_prev = zeros(2001,2,NSims);
-    all_burn_in_prev_either = zeros(2001,1,NSims);
+    all_burn_in_prev = zeros(3001,2,NSims);
+    all_burn_in_prev_either = zeros(3001,1,NSims);
     %% initialise model (create new model object)
+    tic
     for i = 1:NSims
         gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [1,0,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
@@ -54,32 +55,29 @@
         gono_model.simulate(n_Days);
         
     
-    %% extract all counter data from model object 
+    %% extract all counter data from model object unsupress this for BC?
     % (or can be referenced directly)
         data = gono_model.counters;
         prev_data = 100*data.prevalence./N; %prevalence of both strains
         prev_either_data = 100*data.prev_either/N; %prevalence of either strain
-        size(prev_either_data);
         all_either(:,i) = prev_either_data;
         all_data(:,:,i) = prev_data;
+        
         all_vac_doses(:,i) = data.vac_doses_today;
         all_vac_current(:,i) = data.current_vac;
         all_cipr_doses(:,1,i) = data.cipr;
         all_cefta_doses(:,1,i) = data.cefta;
-        all_burn_in_prev(:,:,i) = data.burn_in_prevalence;
-        all_burn_in_prev_either = data.burn_in_prevalence_either;
-        
-        %TODO drug doses error bars
-        %fprintf('Simulations complete = ')
-        %reverseStr = '';
-        %msg = [sprintf('Simulations complete... %3.2f', i)];
-        %fprintf([reverseStr,msg]);
-        %everseStr = repmat(sprintf('\b'), 1, length(msg))
+        all_burn_in_prev(:,:,i) = 100*data.burn_in_prevalence./N; %normalise
+        all_burn_in_prev_either(:,i) = 100*data.burn_in_prevalence_either/N;
         
         msg = ['Simulations completed = ',num2str(i), ' out of ', num2str(NSims)];
         disp(msg)
         
     end
+    toc
+    %how much time does one simulation take, multiply that by 500 to see
+    %how long a big ass run is going to take
+    
         % plot prevalence time-series for whole simulation
         % (using my built in function)
             %gono_model.plot_prev(data, [0 n_Days], [])
@@ -95,7 +93,7 @@
             plot_either = mean(all_either,3);
             size(plot_either);
             size(plot_data);
-            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3);
+            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3); %2001?
             plot_burn_in_prev = mean(all_burn_in_prev,3);
             %standard deviation at all points for plotting confidence
             %intervals, if we want to do that
@@ -118,24 +116,21 @@
             std_cipr_doses = std(all_cipr_doses,0,2);
             avg_cefta_doses = mean(all_cefta_doses,3);
             std_cefta_doses = std(all_cefta_doses,0,2);
-                
-            size(std_vac_doses)
-            size(std_cipr_doses(:,:,1))
-           
            
             %plot 25th and 75th percentiles, not standard deviation as we
             %arent going to have negative prevalence so normal distribution
             %probably doesnt make sense here
             figure('name', 'Average Prevalence with interquartile range');
                 hold on;
-                %plot([0:n_Days],plot_data(:,1),'b-');
+                %plot([0:n_Days],plot_data(:,1),'b-'); %no error bars
                 %plot([0:n_Days],plot_data(:,2),'r-');
-                shadedErrorBar([0:n_Days],plot_data(:,1),[conf(:,1),conf(:,1)],'lineprops','b');
+                %one standard deviation 
+                shadedErrorBar([0:n_Days],plot_data(:,1),[conf(:,1),conf(:,1)],'lineprops','b'); 
                 shadedErrorBar([0:n_Days],plot_data(:,2),[conf(:,2),conf(:,2)],'lineprops','r');
                 %plot([0:n_Days],plot_either,'k');
                 shadedErrorBar([0:n_Days],plot_either,[confe,confe],'lineprops','k')
+                %QUARTILES
                 %shadedErrorBar([0:n_Days,either_strain,[either_strain-i25e,i75e-either_strain]],'lineprops','k');
-                %shadedErrorBar([0:n_Days],)
                 %shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
                 %shadedErrorBar([0:n_Days],plot_data(:,2),[plot_data(:,2)-i25(:,2),i75(:,2)-plot_data(:,2)],'lineprops','r');
                 legend('non-AMR','AMR');
@@ -175,9 +170,9 @@
                     hold on;
                     %plot([0:n_Days], cumsum(avg_cipr_doses));
                     %plot([0:n_Days], cumsum(avg_cefta_doses));
-                    size([0:n_Days])
-                    size(cumsum(avg_cipr_doses(:,1)))
-                    size(std_cipr_doses(:,:,1))
+%                   size([0:n_Days]);
+%                   size(cumsum(avg_cipr_doses(:,1)));
+%                   size(std_cipr_doses(:,:,1)),
                     shadedErrorBar([0:n_Days], cumsum(avg_cipr_doses(:,1)),[std_cipr_doses(:,:,1),std_cipr_doses(:,:,1)]);
                     shadedErrorBar([0:n_Days],cumsum(avg_cefta_doses(:,1)),[std_cefta_doses(:,:,1),std_cefta_doses(:,:,1)]);
                     legend('Cipr/A','Ceft/A','location','northwest');
@@ -221,15 +216,36 @@
                 grid on;
                 
                 %TODO plot end of burn in and then plot effect of vaccine
-                 figure('name','burn in and then vaccine');
+                %currently not working but should just plot what happens
+                %over the 2000 day burn in 
+                 figure('name','burn in');
                      hold on;
-                     plot([0:2000],plot_burn_in_prev_either,'k');
-                     plot([0:2000],plot_burn_in_prev(:,1),'b');
-                     plot([0:2000],plot_burn_in_prev(:,2),'r');
+                     plot([0:3000],plot_burn_in_prev_either,'k');
+                     plot([0:3000],plot_burn_in_prev(:,1),'b');
+                     plot([0:3000],plot_burn_in_prev(:,2),'r');
                      xlabel('Time (days)');
                      ylabel('prevalence in burn in');
                      title('prevalence over burn in period');
                      box on;
                      grid on;
+                     
+                 
+                 %stitch the data together 
+                 days = [0:500+n_Days]; %end of burn in then length of simulation
+                 burn = plot_burn_in_prev_either([2500:2999]);
+                 %plot_change = cat(1,burn,plot_data);
+                 plot_change = cat(1,burn,plot_either);
+                 size(plot_change)
+                 size(days)
+                 figure('name','steady state then vaccine');
+                    hold on;
+                    plot(days,plot_change);
+                    xline(500);
+                    xlabel('Time (days)');
+                    ylabel('Prevalence (%)');
+                    title('Impact of vaccine on prevalence');
+                    box on;
+                    grid on;
+                    
              
                     

@@ -249,7 +249,7 @@ classdef VacAMR_IBM3 < handle
                 self.RESTRICT_RATE = params.RESTRICT_RATE;
                 self.R = params.R;
                 self.MU = params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
-                self.BETA = 1.3*params.BETA; %2.23*10-3?
+                self.BETA = params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
                 self.GAMMA = params.GAMMA;
                 self.PSI = params.PSI;
                 self.MAX_TRACE = params.MAX_TRACE;
@@ -383,7 +383,11 @@ classdef VacAMR_IBM3 < handle
                     self.counters.vac_doses = 0; %how many doses of the vaccine have been given %TODO?
                     self.counters.current_vac = 0; %how many people are currently PROTECTED by the vaccine
                     self.counters.births = 0;
-
+                        
+                    %we dont use this as a counter we store data from the
+                    %counters in it
+                    self.counters.burn_in_prevalence = zeros(1,2);
+                    self.counters.burn_in_prevalence_either = 0;
 
                     % number of people who attended after voluntarily seeking at each time step
                     % (2nd/3rd column: number infected with each strain)
@@ -622,10 +626,15 @@ classdef VacAMR_IBM3 < handle
                 self.counters.n_traced = cat(1,self.counters.n_traced,zeros(n_Days,self.n_Strains+1));
                 self.counters.n_recalled = cat(1,self.counters.n_recalled,zeros(n_Days,self.n_Strains+1));
                 
-                self.counters.vac_doses = cat(1,self.counters.vac_doses,zeros(n_Days,1)); %this isnt used
                 self.counters.vac_doses_today = cat(1,self.counters.vac_doses_today,zeros(n_Days,1));
                 self.counters.current_vac = cat(1,self.counters.current_vac,zeros(n_Days,1));
                 self.counters.births = cat(1,self.counters.births,zeros(n_Days,1));
+                
+                %should have a burn in days parameter not 2000, maybe 2000
+                %wont work
+                self.counters.burn_in_prevalence = cat(1,self.counters.burn_in_prevalence,zeros(2000,self.n_Strains));
+                self.counters.burn_in_prevalence_either = cat(1,self.counters.burn_in_prevalence_either,zeros(2000,1));
+               
                 
                 self.mean_degree_current = cat(1,self.mean_degree_current,zeros(n_Days,2));
                 
@@ -781,7 +790,7 @@ classdef VacAMR_IBM3 < handle
                     
                     %no. of people vaccinated, works for different levels of
                 %protection
-                self.counters.current_vac(self.today+1) = sum(self.vac_state(:,self.today)~= 0); %index in pos 2 invalid - burn in???
+                self.counters.current_vac(self.today+1) = sum(self.vac_state(:,self.today)~= 0); %works now index in pos 2 invalid - burn in???
                     
                   %% Burn-in (if selected)
                     % TESTING ONLY - NOT A STABLE METHOD OF EQUILIBRATING!!
@@ -793,8 +802,13 @@ classdef VacAMR_IBM3 < handle
                         %about the ratio, i just want to get the prevalence
                         %stable
                         
+                        %after weve burned in we want to store the burn in
+                        %prevlaences to plot a steady state before we
+                        %introduce the vaccine
+                        self.counters.burn_in_prevalence(self.today+1,:) = sum(self.indiv_state(:,:,self.today+1),1);
+                        self.counters.burn_in_prevalence_either(self.today+1) = sum(any(self.indiv_state(:,:,self.today+1),2),1);
                         %burn in for 2000 days, looks about right
-                        if  self.today == 1999 
+                        if  self.today == 2999 %set the values here for the real simulation
                            % update state / counters for day zero with
                            % today's values
                            if self.LOW_MEM
@@ -802,17 +816,15 @@ classdef VacAMR_IBM3 < handle
                                 self.counters.prevalence(1,:) = sum(self.indiv_state,1);
                                 self.counters.prev_both(1) = sum(all(self.indiv_state,2));
                                 self.counters.prev_either(1) = sum(any(self.indiv_state,2));
+
                            else
                                 self.indiv_state(:,:,1) = new_state;
                                 self.counters.prevalence(1,:) = sum(self.indiv_state(:,:,self.today+1),1);
                                 self.counters.prev_both(1) = sum(all(self.indiv_state(:,:,self.today+1),2));
                                 self.counters.prev_either(1) = sum(any(self.indiv_state(:,:,self.today+1),2));
+                                
                            end
                            
-                           %we do want to plot the end of the burn in, so
-                           %lets store the prevalence data for 1,2,either
-                           burn_in_prevalence = self.counters.prevalence(1,:);
-                           burn_in_prevalence_either = self.counters.prev_either(1);
                            
                            % reset / update some totals
                            self.counters.drug_count = zeros(self.N,2);
@@ -840,7 +852,16 @@ classdef VacAMR_IBM3 < handle
                            %end
                            
                         end
+                      
                     end
+                    
+                    
+                    
+                    %we do want to plot the end of the burn in, so
+                    %lets store the prevalence data for 1,2,either
+                    
+                           
+                    
                 
                 
                 
