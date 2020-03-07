@@ -237,6 +237,7 @@ classdef VacAMR_IBM3 < handle
                 % (dont even attempt changing this value as much of the code now
                 % relies on this being equal to 2!)
                 %so changing this so we have 3 strains could be a nightmare
+          
                 self.n_Strains = 2;
                 
                 % Set parameter values from params structure
@@ -248,7 +249,7 @@ classdef VacAMR_IBM3 < handle
                 self.RESTRICT_MAX_PARTNERS = params.RESTRICT_MAX_PARTNERS;
                 self.RESTRICT_RATE = params.RESTRICT_RATE;
                 self.R = params.R;
-                self.MU = params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
+                self.MU = 4.6*10^-5;%params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
                 self.BETA = params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
                 self.GAMMA = params.GAMMA;
                 self.PSI = params.PSI;
@@ -870,7 +871,7 @@ classdef VacAMR_IBM3 < handle
                 %diary on;
 
                 % Simulation loop complete - output to console
-                if self.VERBOSE; fprintf([' [DONE - in ',sprintf('%.2f',loop_elapsed),' sec]\n']);end
+              if self.VERBOSE; fprintf([' [DONE - in ',sprintf('%.2f',loop_elapsed),' sec]\n']);end
                  
                 
             end % simulate function
@@ -1016,8 +1017,8 @@ classdef VacAMR_IBM3 < handle
 %                         '\n\t\t new AMR infections (', num2str(sum(idx_infect(:,2))),') :', num2str(find(idx_infect(:,2))),'\n\n']);
 %                 end
                 if self.DEBUG
-                    fprintf(['\tNew infections: ', num2str(sum(idx_infect(:,1))),' (nonAMR), ',...
-                        num2str(sum(idx_infect(:,2))),' (AMR)\n'])
+                   % fprintf(['\tNew infections: ', num2str(sum(idx_infect(:,1))),' (nonAMR), ',...
+                    %    num2str(sum(idx_infect(:,2))),' (AMR)\n'])
                 end
                 
             end
@@ -1160,7 +1161,7 @@ classdef VacAMR_IBM3 < handle
                 %these should be params, should all be within an if
                 if self.vac(2) && self.burn_in == 0                   
                     vac_rate = self.ACCEPTVACCINE;
-                    y = self.LENGTHOFPROTECTION
+                    y = self.LENGTHOFPROTECTION;
                     %decide who needs the vaccination
                     idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
                     %sum(idx_never_vac) %1000 always :(
@@ -1286,18 +1287,18 @@ classdef VacAMR_IBM3 < handle
                     %Vaccinate no prescreening - less targeted, more
                     %vaccines
                         
-                        vac_rate = self.LENGTHOFPROTECTION;
+                        vac_accept_rate = self.ACCEPTVACCINE;
                         %Only vaccinate people if they've not had it in the
                         %last 3 months 
                         idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
                          %sum(idx_never_vac) %1000 always :(
-                        idx_old_vac = self.today-self.vaccinated_since > 90;  %people who last had it 3 months ago ot more
+                        %idx_old_vac = self.today-self.vaccinated_since > 90;  %people who last had it 3 months ago ot more
                         
-                        idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
+                        %idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
                         
-                        idx_offer_vac = idx_need_vac.*idx_treat_today;
+                        idx_offer_vac = idx_never_vac.*idx_treat_today;
 
-                        idx_to_vaccinate3 = min(rand(self.N,1),idx_offer_vac) > 1-vac_rate;
+                        idx_to_vaccinate3 = min(rand(self.N,1),idx_offer_vac) > 1-vac_accept_rate;
                         sum(idx_to_vaccinate3);
                         new_vac_state(idx_to_vaccinate3) = 1; 
                         size(new_vac_state);
