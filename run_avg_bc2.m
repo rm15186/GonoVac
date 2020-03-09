@@ -5,7 +5,7 @@
     %close all;
     %for bc shall we do 500 simulations, burn in of x days, start with 10/%
     %prevalence
-    NSims = 10;
+    NSims = 100;
 
     % General parmeters 
         N = 10000;          % population size
@@ -116,9 +116,9 @@
             std_vac_current = std(all_vac_current,0,2)
             avg_vac_doses = mean(all_vac_doses,2)
             std_vac_doses = std(all_vac_doses,0,2)
-            avg_cipr_doses = mean(all_cipr_doses,3)
+            avg_cipr_doses = mean(all_cipr_doses,2)
             std_cipr_doses = std(all_cipr_doses,0,2)
-            avg_cefta_doses = mean(all_cefta_doses,3)
+            avg_cefta_doses = mean(all_cefta_doses,2)
             std_cefta_doses = std(all_cefta_doses,0,2)
 
 

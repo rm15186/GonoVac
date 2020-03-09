@@ -31,7 +31,7 @@
             %params.p0 = [0.04 0.5 0];
         
     % display all parameters
-        params
+        params;
         
         
     %for working out averages
@@ -47,7 +47,7 @@
     %% initialise model (create new model object)
     tic
     for i = 1:NSims
-        gono_model = VacAMR_IBM3(N, params, [],VERBOSE, LOW_MEM, [0,0,1]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,1]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
@@ -74,7 +74,7 @@
         %disp(msg)
         
     end
-    toc
+    toc %TODO need to get rid of tocs in vac for this to work!
     %how much time does one simulation take, multiply that by 500 to see
     %how long a big ass run is going to take
     
@@ -90,16 +90,16 @@
             %prev_data = 100*data.prevalence./N;
             %size(all_data)
             plot_data = mean(all_data,3);
-            plot_either = mean(all_either,3);
+            plot_either = mean(all_either,2);
             size(plot_either);
             size(plot_data);
             plot_burn_in_prev_either = mean(all_burn_in_prev_either,3); %2001?
-            plot_burn_in_prev = mean(all_burn_in_prev,3);
+            plot_burn_in_prev = mean(all_burn_in_prev,2);
             %standard deviation at all points for plotting confidence
             %intervals, if we want to do that
-            conf = std(all_data,0,3);
-            confe = std(all_either,0,3);
-            size(conf);
+            %conf = std(all_data,0,3);
+            %confe = std(all_either,0,2);
+            %size(conf);
             %quartiles for error bars that dont go below 0
             i25 = quantile(all_data,0.25,3); %25th percentile
             i75 = quantile(all_data,0.75,3);%75th percentile
@@ -116,6 +116,9 @@
             std_cipr_doses = std(all_cipr_doses,0,2);
             avg_cefta_doses = mean(all_cefta_doses,2);
             std_cefta_doses = std(all_cefta_doses,0,2);
+            
+            size(all_cipr_doses);
+            size(mean(all_cipr_doses,2));
            
             %plot 25th and 75th percentiles, not standard deviation as we
             %arent going to have negative prevalence so normal distribution
@@ -125,14 +128,14 @@
                 %plot([0:n_Days],plot_data(:,1),'b-'); %no error bars
                 %plot([0:n_Days],plot_data(:,2),'r-');
                 %one standard deviation 
-                shadedErrorBar([0:n_Days],plot_data(:,1),[conf(:,1),conf(:,1)],'lineprops','b'); 
-                shadedErrorBar([0:n_Days],plot_data(:,2),[conf(:,2),conf(:,2)],'lineprops','r');
+%                 shadedErrorBar([0:n_Days],plot_data(:,1),[conf(:,1),conf(:,1)],'lineprops','b'); 
+%                 shadedErrorBar([0:n_Days],plot_data(:,2),[conf(:,2),conf(:,2)],'lineprops','r');
                 %plot([0:n_Days],plot_either,'k');
-                shadedErrorBar([0:n_Days],plot_either,[confe,confe],'lineprops','k')
+                %shadedErrorBar([0:n_Days],plot_either,[confe,confe],'lineprops','k')
                 %QUARTILES
-                %shadedErrorBar([0:n_Days,either_strain,[either_strain-i25e,i75e-either_strain]],'lineprops','k');
-                %shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
-                %shadedErrorBar([0:n_Days],plot_data(:,2),[plot_data(:,2)-i25(:,2),i75(:,2)-plot_data(:,2)],'lineprops','r');
+                shadedErrorBar([0:n_Days,plot_either,[plot_either-i25e,i75e-plot_either]],'lineprops','k');
+                shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
+                shadedErrorBar([0:n_Days],plot_data(:,2),[plot_data(:,2)-i25(:,2),i75(:,2)-plot_data(:,2)],'lineprops','r');
                 legend('non-AMR','AMR');
                 xlabel('Time (days)')
                 ylabel('Average Prevalence (%)');
@@ -235,8 +238,8 @@
                  burn = plot_burn_in_prev_either([2500:2999]);
                  %plot_change = cat(1,burn,plot_data);
                  plot_change = cat(1,burn,plot_either);
-                 size(plot_change)
-                 size(days)
+                 size(plot_change);
+                 size(days);
                  figure('name','steady state then vaccine');
                     hold on;
                     plot(days,plot_change);

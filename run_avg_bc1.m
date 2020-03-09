@@ -5,7 +5,7 @@
     %close all;
     %for bc shall we do 500 simulations, burn in of x days, start with 10/%
     %prevalence
-    NSims = 10;
+    NSims = 100;
 
     % General parmeters 
         N = 10000;          % population size
@@ -64,8 +64,8 @@
         
         all_vac_doses(:,i) = data.vac_doses_today;
         all_vac_current(:,i) = data.current_vac;
-        all_cipr_doses(:,1,i) = data.cipr;
-        all_cefta_doses(:,1,i) = data.cefta;
+        all_cipr_doses(:,i) = data.cipr;
+        all_cefta_doses(:,i) = data.cefta;
         all_burn_in_prev(:,:,i) = 100*data.burn_in_prevalence./N; %normalise
         all_burn_in_prev_either(:,i) = 100*data.burn_in_prevalence_either/N;
         
@@ -116,9 +116,9 @@
             std_vac_current = std(all_vac_current,0,2)
             avg_vac_doses = mean(all_vac_doses,2)
             std_vac_doses = std(all_vac_doses,0,2)
-            avg_cipr_doses = mean(all_cipr_doses,3)
+            avg_cipr_doses = mean(all_cipr_doses,2)
             std_cipr_doses = std(all_cipr_doses,0,2)
-            avg_cefta_doses = mean(all_cefta_doses,3)
+            avg_cefta_doses = mean(all_cefta_doses,2)
             std_cefta_doses = std(all_cefta_doses,0,2)
 
 
