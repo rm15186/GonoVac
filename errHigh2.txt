@@ -1,0 +1,10 @@
+/cm/local/apps/torque/4.2.4.1/spool/mom_priv/jobs/9210194.master.cm.cluster.SC: line 7: PBS: command not found
+{Error using VacAMR_IBM3HighPrev
+Error: File: /newhome/rm15186/VacAMR_IBM3HighPrev.m Line: 32 Column: 10
+Class name and filename do not agree.
+
+Error in run_avg2High (line 49)
+        gono_model = VacAMR_IBM3HighPrev(N, params, [], VERBOSE, LOW_MEM,
+        [0,1,0]);
+} 
+Warning: Permanently added 'node46-024,10.131.1.48' (RSA) to the list of known hosts.

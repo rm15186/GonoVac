@@ -47,7 +47,7 @@
     %% initialise model (create new model object)
     tic
     for i = 1:NSims
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,1]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
@@ -90,7 +90,7 @@
             %prev_data = 100*data.prevalence./N;
             %size(all_data)
             plot_data = mean(all_data,3);
-            plot_either = mean(all_either,2);
+            plot_either = mean(all_either,3);
             size(plot_either);
             size(plot_data);
             plot_burn_in_prev_either = mean(all_burn_in_prev_either,3); %2001?
@@ -104,8 +104,8 @@
             i25 = quantile(all_data,0.25,3); %25th percentile
             i75 = quantile(all_data,0.75,3);%75th percentile
             
-            %i25e = quantile(either_strain,0.25,3);
-            %i75e = quantile(either_strain,0.75,3);
+            i25e = quantile(all_either,0.25,3);
+            i75e = quantile(all_either,0.75,3);
   
             
             avg_vac_current = mean(all_vac_current,2);
@@ -132,8 +132,11 @@
 %                 shadedErrorBar([0:n_Days],plot_data(:,2),[conf(:,2),conf(:,2)],'lineprops','r');
                 %plot([0:n_Days],plot_either,'k');
                 %shadedErrorBar([0:n_Days],plot_either,[confe,confe],'lineprops','k')
-                %QUARTILES
-                shadedErrorBar([0:n_Days,plot_either,[plot_either-i25e,i75e-plot_either]],'lineprops','k');
+                %QUARTILE
+                size(0:n_Days)
+                size(plot_either)
+                size([plot_either-i25e,i75e-plot_either])
+                shadedErrorBar([0:n_Days],plot_either,[plot_either-i25e,i75e-plot_either],'lineprops','k');
                 shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
                 shadedErrorBar([0:n_Days],plot_data(:,2),[plot_data(:,2)-i25(:,2),i75(:,2)-plot_data(:,2)],'lineprops','r');
                 legend('non-AMR','AMR');

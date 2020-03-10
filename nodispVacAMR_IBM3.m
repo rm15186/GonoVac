@@ -249,7 +249,7 @@ classdef VacAMR_IBM3 < handle
                 self.RESTRICT_MAX_PARTNERS = params.RESTRICT_MAX_PARTNERS;
                 self.RESTRICT_RATE = params.RESTRICT_RATE;
                 self.R = params.R;
-                self.MU = 4.6*10^-5;%params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
+                self.MU = params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
                 self.BETA = params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
                 self.GAMMA = params.GAMMA;
                 self.PSI = params.PSI;
