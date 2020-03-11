@@ -1,13 +1,9 @@
-% Give us every possible bit of data we could want            
+% Give us every possible bit of data we could want for any type of plot          
 
-
+%% prevalence
 plot_data = mean(all_data,3);
             plot_either = mean(all_either,3);
             
-            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3); %2001?
-            plot_burn_in_prev = mean(all_burn_in_prev,2);
-            std_burn_in_prev_either = std(all_burn_in_prev_either,0,3);
-            std_burn_in_prev = std(all_burn_in_prev,0,2);
             
             %standard deviation at all points for plotting confidence
             %intervals, if we want to do that
@@ -21,17 +17,24 @@ plot_data = mean(all_data,3);
             i25e = quantile(all_either,0.25,3);
             i75e = quantile(all_either,0.75,3);
   
+            %%burn in prevalence 
+            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3); %2001?
+            plot_burn_in_prev = mean(all_burn_in_prev,2);
+            std_burn_in_prev_either = std(all_burn_in_prev_either,0,3);
+            std_burn_in_prev = std(all_burn_in_prev,0,2);
             
+            %% current people vaccinated %
             avg_vac_current = mean(all_vac_current,2);
             std_vac_current = std(all_vac_current,0,2);
             range_vac_current = [quantile(all_vac_current,0.25,2),quantile(all_vac_current,0.75,2)];
             plot_range_vac_current = [avg_vac_current-range_vac_current(:,1),range_vac_current(:,2)-avg_vac_current];
-            
+            %% doses of vaccine given
             avg_vac_doses = mean(all_vac_doses,2);
             std_vac_doses = std(all_vac_doses,0,2);
             range_vac_doses = [quantile(all_vac_doses,0.25,2),quantile(all_vac_doses,0.75,2)];
             plot_range_vac_doses = [avg_vac_doses-range_vac_doses(:,1),avg_vac_doses-range_vac_doses(:,2)-avg_vac_doses];
             
+            %% doses of antibiotics - cipr not used 
             avg_cipr_doses = mean(all_cipr_doses,2);
             std_cipr_doses = std(all_cipr_doses,0,2);
             

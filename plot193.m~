@@ -68105,7 +68105,6 @@ std_cefta_doses =[
     1.5986
     1.4679];
 n_Days = 4000;
-
             close all
             %plot 25th and 75th percentiles, not standard deviation as we
             %arent going to have negative prevalence so normal distribution
@@ -68134,6 +68133,19 @@ n_Days = 4000;
                 box on;
                 grid on;
             
+        
+            
+            %add the overall prevalence and make these thicker
+            figure('name', 'Average Prevalence');
+                hold on;
+                plot([0:n_Days],plot_data(:,1),'b-');
+                plot([0:n_Days],plot_data(:,2),'r-');
+                plot([0:n_Days],plot_either,'k-');
+                legend('non-AMR','AMR','Total Prevalence','fontsize',14,'Interpreter','latex');
+                xlabel('Time (days)','fontsize',14,'Interpreter','latex')
+                ylabel('Average Prevalence (%)','fontsize',14,'Interpreter','latex');
+                box on;
+                grid on;
             
             
             % drug administration of each drug given by the cumulative sum
@@ -68180,10 +68192,10 @@ n_Days = 4000;
                      %plot([0:3000],plot_burn_in_prev_either,'k');
                      %plot([0:3000],plot_burn_in_prev(:,1),'b');
                      %plot([0:3000],plot_burn_in_prev(:,2),'r');
-                     size([0:3000]);
-                     size(std_burn_in_prev(:,1));
-                     size(plot_burn_in_prev);
-                     size(std_burn_in_prev_either);
+                     size([0:3000])
+                     size(std_burn_in_prev(:,1))
+                     size(plot_burn_in_prev)
+                     size(std_burn_in_prev_either)
                      shadedErrorBar([0:3000],plot_burn_in_prev_either,[std_burn_in_prev_either],'lineprops','k')
                      shadedErrorBar([0:3000],plot_burn_in_prev(:,1),[std_burn_in_prev(:,1),std_burn_in_prev(:,1)],'lineprops','b')
                      shadedErrorBar([0:3000],plot_burn_in_prev(:,2),[std_burn_in_prev(:,2),std_burn_in_prev(:,2)],'lineprops','r')
@@ -68197,23 +68209,19 @@ n_Days = 4000;
                  %stitch the data together 
                  days = [0:500+n_Days]; %end of burn in then length of simulation
                  burn = plot_burn_in_prev_either([2500:2999]);
-                 burn_strains = plot_burn_in_prev([2500:2999],:);
-                 %size(burn_strains)
-                 %size(plot_data)
-                 plot_change = cat(1,burn_strains,plot_data);
+                 burn_either
+                 plot_change = cat(1,burn,plot_data);
                  plot_change_either = cat(1,burn,plot_either);
                  size(plot_change);
                  size(days);
                  figure('name','steady state then vaccine');
                     hold on;
-                    plot(days,plot_change_either,'k-');
-                    plot(days,plot_change(:,1),'b-');
-                    plot(days,plot_change(:,2),'r-')
+                    plot(days,plot_change_either);
+                    %plot(days,)
                     xline(500);
                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
                     ylabel('Prevalence (%)','fontsize',14,'Interpreter','latex');
                     title('Impact of vaccine on prevalence','fontsize',14,'Interpreter','latex');
-                    legend('Eiter Strain','Non-AMR','AMR','fontsize',14,'Interpreter','latex')
                     box on;
                     grid on;
                     
