@@ -68104,7 +68104,7 @@ std_cefta_doses =[
     1.5469
     1.5986
     1.4679];
-
+n_Days = 4000;
             close all
             %plot 25th and 75th percentiles, not standard deviation as we
             %arent going to have negative prevalence so normal distribution

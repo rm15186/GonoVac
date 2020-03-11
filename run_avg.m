@@ -47,7 +47,7 @@
     %% initialise model (create new model object)
     tic
     for i = 1:NSims
-        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [0,0,0]);
+        gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM, [1,0,0]);
         %gono_model = VacAMR_IBM3(N, params, [], VERBOSE, LOW_MEM);
         
     %% run simulation for n_Days # of days
@@ -156,20 +156,7 @@
                 ylabel('Average Prevalence (%)');
                 box on;
                 grid on;
-            
-            
-%                 figure('name','Strain prevalence');
-%                     hold on;
-%                     plot([0:n_Days],prev_data(:,1),'b-'); % non AMR strain
-%                     plot([0:n_Days],prev_data(:,2),'r-'); % AMR strain
-%                     legend('non-AMR','AMR');
-%                     xlabel('Time (days)')
-%                     ylabel('Prevalence (%)');
-%                     box on;
-%                     grid on;
-                    
-                    
-            
+                  
             % drug administration of each drug given by the cumulative sum
             % of the daily dosage of each drug
                 figure('name','Dosage','color','w');

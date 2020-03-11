@@ -91,6 +91,18 @@
             % (not yet normalised with respect to the population size)
             
             %% give us the data
+            prev_data  %prevalence of both strains
+            prev_either_data  %prevalence of either strain
+            all_either
+            all_data
+
+            all_vac_doses
+            all_vac_current
+            all_cipr_doses
+            all_cefta_doses
+            all_burn_in_prev 
+            all_burn_in_prev_either
+            
             prev_data = 100*data.prevalence./N;
             plot_data = mean(all_data,3)
             plot_either = mean(all_either,3)
