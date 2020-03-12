@@ -78,238 +78,95 @@
     disp(msg1)
     
     
-    
-    %how much time does one simulation take, multiply that by 500 to see
-    %how long a big ass run is going to take
-    
-        % plot prevalence time-series for whole simulation
-        % (using my built in function)
-            %gono_model.plot_prev(data, [0 n_Days], [])
-        
-        % manual plots (examples)
-            % get prevalence (per strain) from counter varfiable
-            % (not yet normalised with respect to the population size)
-            
-            %% give us the data
-%             prev_data  %prevalence of both strains
-%             prev_either_data  %prevalence of either strain
-%             all_either
-%             all_data
-% 
-%             all_vac_doses
-%             all_vac_current
-%             all_cipr_doses
-%             all_cefta_doses
-%             all_burn_in_prev 
-%             all_burn_in_prev_either
-%             
-%             prev_data = 100*data.prevalence./N;
-%             plot_data = mean(all_data,3)
-%             plot_either = mean(all_either,3)
-%             plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001?
-%             plot_burn_in_prev = mean(all_burn_in_prev,3)
-%             
-%             std_burn_in_prev_either = std(all_burn_in_prev,0,3)
-%             std_burn_in_prev = std(all_burn_in_prev,0,3)
-%             
-%             %confidence intervals
-%             %conf = std(all_data,0,3);
-%             %confe = std(all_either,0,3); %confidence interval for either strain
-%             
-%             %quartiles for error bars that dont go below 0
-%             i25 = quantile(all_data,0.25,3) %25th percentile
-%             i75 = quantile(all_data,0.75,3)%75th percentile
-%             
-%             i25e = quantile(all_either,0.25,3)
-%             i75e = quantile(all_either,0.75,3)
-%   
-%             
-%             avg_vac_current = mean(all_vac_current,2)
-%             std_vac_current = std(all_vac_current,0,2)
-%             avg_vac_doses = mean(all_vac_doses,2)
-%             std_vac_doses = std(all_vac_doses,0,2)
-%             avg_cipr_doses = mean(all_cipr_doses,2)
-%             std_cipr_doses = std(all_cipr_doses,0,2)
-%             avg_cefta_doses = mean(all_cefta_doses,2)
-%             std_cefta_doses = std(all_cefta_doses,0,2)
-%             
-%% process data stuff - should give us everything we need
-plot_data = mean(all_data,3)
-            plot_either = mean(all_either,3)
-            
+            plot_data = mean(all_data,3)
+            disp(msg2)
+            plot_either = mean(all_either,3) 
+            disp(msg2)
             
             %standard deviation at all points for plotting confidence
             %intervals, if we want to do that
             conf = std(all_data,0,3)
-            confe = std(all_either,0,2)
+            disp(msg2)
+            confe = std(all_either,0,3)
+            disp(msg2)
             %size(conf);
             %quartiles for error bars that dont go below 0
             i25 = quantile(all_data,0.25,3) %25th percentile
-            i75 = quantile(all_data,0.75,3;%75th percentile
+            disp(msg2)
+            i75 = quantile(all_data,0.75,3)%75th percentile
+            disp(msg2)
             
             i25e = quantile(all_either,0.25,3)
+            disp(msg2)
             i75e = quantile(all_either,0.75,3)
-  
-            %%burn in prevalence 
-            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001?
-            plot_burn_in_prev = mean(all_burn_in_prev,2)
-            std_burn_in_prev_either = std(all_burn_in_prev_either,0,3)
-            std_burn_in_prev = std(all_burn_in_prev,0,2)
+            disp(msg2)
             
+            %%burn in prevalence 
+            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001? %10
+            disp(msg2) 
+            plot_burn_in_prev = mean(all_burn_in_prev,3) %6,4
+            disp(msg2)
+            std_burn_in_prev_either = std(all_burn_in_prev_either,0,3)
+            disp(msg2)
+            std_burn_in_prev = std(all_burn_in_prev,0,3)
+            disp(msg2)
+            
+            %TODO write something that plots this! NEW delete this if it
+            %breaks on 50 not 45
+            %these are going negative and i might jjust not bother
+            i25burn1 = quantile(all_burn_in_prev(:,1),0.25,3)
+            disp(msg2)
+            i25burn2 = quantile(all_burn_in_prev(:,2),0.25,3)
+            disp(msg2)
+            i75burn1 = quantile(all_burn_in_prev(:,1),0.75,3)
+            disp(msg2)
+            i75burn2 = quantile(all_burn_in_prev(:,2),0.75,3)
+            disp(msg2)
+            i25burn_either = quantile(all_burn_in_prev_either,0.25,3)
+            disp(msg2)
+            i75burn_either = quantile(all_burn_in_prev_either,0.75,3)
+            disp(msg2)
+            plot_range_burn_either=[plot_burn_in_prev_either-i25burn_either,i75burn_either-plot_burn_in_prev_either]
+            disp(msg2)
+            plot_burn_1 = [plot_burn_in_prev(:,1)-i25burn1,i75burn1-plot_burn_in_prev(:,1)]
+            disp(msg2)
+            plot_burn_2 = [plot_burn_in_prev(:,2)-i25burn2,i75burn2-plot_burn_in_prev(:,2)]
+            disp(msg2)
+            
+
             %% current people vaccinated %
             avg_vac_current = mean(all_vac_current,2)
+            disp(msg2)
             std_vac_current = std(all_vac_current,0,2)
+            disp(msg2)
             range_vac_current = [quantile(all_vac_current,0.25,2),quantile(all_vac_current,0.75,2)]
+            disp(msg2)
             plot_range_vac_current = [avg_vac_current-range_vac_current(:,1),range_vac_current(:,2)-avg_vac_current]
+            disp(msg2)
             %% doses of vaccine given
             avg_vac_doses = mean(all_vac_doses,2)
+            disp(msg2)
             std_vac_doses = std(all_vac_doses,0,2)
-            range_vac_doses = [quantile(all_vac_doses,0.25,2),quantile(all_vac_doses,0.75,2)]
-            plot_range_vac_doses = [avg_vac_doses-range_vac_doses(:,1),avg_vac_doses-range_vac_doses(:,2)-avg_vac_doses]
-            
+            disp(msg2)
+            range_vac_doses1 = quantile(all_vac_doses,0.25,2)
+            disp(msg2)
+            range_vac_doses2 = quantile(all_vac_doses,0.75,2)
+            disp(msg2)
+            plot_range_vac_doses = [avg_vac_doses-range_vac_doses1,range_vac_doses2-avg_vac_doses]
+            disp(msg2)
             %% doses of antibiotics - cipr not used 
             avg_cipr_doses = mean(all_cipr_doses,2)
+            disp(msg2)
             std_cipr_doses = std(all_cipr_doses,0,2)
+            disp(msg2)
             
             avg_cefta_doses = mean(all_cefta_doses,2)
+            disp(msg2)
             std_cefta_doses = std(all_cefta_doses,0,2)
+            disp(msg2)
             range_cefta_doses = [quantile(all_cefta_doses,0.25,2),quantile(all_cefta_doses,0.75,2)]
+            disp(msg2)
             plot_range_cefta_doses = [avg_cefta_doses-range_cefta_doses(:,1),range_cefta_doses(:,2)-avg_cefta_doses]
+            disp(msg2)
 
-            
-            size(all_cipr_doses);
-            size(mean(all_cipr_doses,2));
 
-%% all the plots are irrelevant for bc well put this in another file
-%             %plot 25th and 75th percentiles, not standard deviation as we
-%             %arent going to have negative prevalence so normal distribution
-%             %probably doesnt make sense here
-%             figure('name', 'Average Prevalence with interquartile range');
-%                 hold on;
-%                 %plot([0:n_Days],plot_data(:,1),'b-'); %no error bars
-%                 %plot([0:n_Days],plot_data(:,2),'r-');
-%                 %one standard deviation 
-%                 shadedErrorBar([0:n_Days],plot_data(:,1),[conf(:,1),conf(:,1)],'lineprops','b'); 
-%                 shadedErrorBar([0:n_Days],plot_data(:,2),[conf(:,2),conf(:,2)],'lineprops','r');
-%                 %plot([0:n_Days],plot_either,'k');
-%                 shadedErrorBar([0:n_Days],plot_either,[confe,confe],'lineprops','k')
-%                 %QUARTILES
-%                 %shadedErrorBar([0:n_Days,either_strain,[either_strain-i25e,i75e-either_strain]],'lineprops','k');
-%                 %shadedErrorBar([0:n_Days],plot_data(:,1),[plot_data(:,1)-i25(:,1),i75(:,1)-plot_data(:,1)],'lineprops','b');
-%                 %shadedErrorBar([0:n_Days],plot_data(:,2),[plot_data(:,2)-i25(:,2),i75(:,2)-plot_data(:,2)],'lineprops','r');
-%                 legend('non-AMR','AMR');
-%                 xlabel('Time (days)')
-%                 ylabel('Average Prevalence (%)');
-%                 box on;
-%                 grid on;
-%             
-%             %add the overall prevalence and make these thicker
-%             figure('name', 'Average Prevalence');
-%                 hold on;
-%                 plot([0:n_Days],plot_data(:,1),'b-');
-%                 plot([0:n_Days],plot_data(:,2),'r-');
-%                 plot([0:n_Days],plot_either,'k-');
-%                 legend('non-AMR','AMR','Total Prevalence');
-%                 xlabel('Time (days)')
-%                 ylabel('Average Prevalence (%)');
-%                 box on;
-%                 grid on;
-%             
-%             
-% %                 figure('name','Strain prevalence');
-% %                     hold on;
-% %                     plot([0:n_Days],prev_data(:,1),'b-'); % non AMR strain
-% %                     plot([0:n_Days],prev_data(:,2),'r-'); % AMR strain
-% %                     legend('non-AMR','AMR');
-% %                     xlabel('Time (days)')
-% %                     ylabel('Prevalence (%)');
-% %                     box on;
-% %                     grid on;
-%                     
-%                     
-%             
-%             % drug administration of each drug given by the cumulative sum
-%             % of the daily dosage of each drug
-%                 figure('name','Dosage','color','w');
-%                     hold on;
-%                     %plot([0:n_Days], cumsum(avg_cipr_doses));
-%                     %plot([0:n_Days], cumsum(avg_cefta_doses));
-% %                   size([0:n_Days]);
-% %                   size(cumsum(avg_cipr_doses(:,1)));
-% %                   size(std_cipr_doses(:,:,1)),
-%                     shadedErrorBar([0:n_Days], cumsum(avg_cipr_doses(:,1)),[std_cipr_doses(:,:,1),std_cipr_doses(:,:,1)]);
-%                     shadedErrorBar([0:n_Days],cumsum(avg_cefta_doses(:,1)),[std_cefta_doses(:,:,1),std_cefta_doses(:,:,1)]);
-%                     legend('Cipr/A','Ceft/A','location','northwest');
-%                     xlabel('Time (days)');
-%                     ylabel('Number of doses')
-%                     title('Cumulative drug doses administered');
-%                     box on;
-%                     grid on;
-%                     
-% %                 figure('name','Dosage','color','w');
-% %                     hold on;
-% %                     data.vac_doses_today;
-% %                     data.births;
-% %                     plot([0:n_Days], cumsum(data.vac_doses_today),'b-');
-% %                     plot([0:n_Days], cumsum(data.births),'r-');
-% %                     legend('vaccine doses','births');
-% %                     xlabel('Time (days)');
-% %                     ylabel('Number of vaccine doses')
-% %                     title('Cumulative vaccine doses administered');
-% %                     box on;
-% %                     grid on;    
-%                 
-%                 figure('name','Average doses of vaccine');
-%                     hold on;
-%                     %plot([0:n_Days], cumsum(avg_vac_doses));
-%                     shadedErrorBar([0:n_Days],cumsum(avg_vac_doses),[std_vac_doses(:,1),std_vac_doses(:,1)])
-%                     xlabel('Time (days)');
-%                     ylabel('No of vaccine doses given');
-%                     title('average vaccine doeses given');
-%                     box on;
-%                     grid on;
-%                     
-%                 figure('name','average no. of vaccinated people');
-%                     hold on;
-%                     plot([0:n_Days], avg_vac_current);
-%                     shadedErrorBar([0:n_Days],avg_vac_current,[std_vac_current(:,1),std_vac_current(:,1)])
-%                     xlabel('Time (days)');
-%                     ylabel('average no of people protected by the vaccine');
-%                     title('average no of people protected');
-%                     box on;
-%                 grid on;
-%                 
-%                 %TODO plot end of burn in and then plot effect of vaccine
-%                 %currently not working but should just plot what happens
-%                 %over the 2000 day burn in 
-%                  figure('name','burn in');
-%                      hold on;
-%                      plot([0:3000],plot_burn_in_prev_either,'k');
-%                      plot([0:3000],plot_burn_in_prev(:,1),'b');
-%                      plot([0:3000],plot_burn_in_prev(:,2),'r');
-%                      xlabel('Time (days)');
-%                      ylabel('prevalence in burn in');
-%                      title('prevalence over burn in period');
-%                      box on;
-%                      grid on;
-%                      
-%                  
-%                  %stitch the data together 
-%                  days = [0:500+n_Days]; %end of burn in then length of simulation
-%                  burn = plot_burn_in_prev_either([2500:2999]);
-%                  %plot_change = cat(1,burn,plot_data);
-%                  plot_change = cat(1,burn,plot_either);
-%                  size(plot_change)
-%                  size(days)
-%                  figure('name','steady state then vaccine');
-%                     hold on;
-%                     plot(days,plot_change);
-%                     xline(500);
-%                     xlabel('Time (days)');
-%                     ylabel('Prevalence (%)');
-%                     title('Impact of vaccine on prevalence');
-%                     box on;
-%                     grid on;
-%                     
-%              
-%                     
