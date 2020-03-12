@@ -27,7 +27,7 @@
             params.p0 = [0.2 0.1 0];
     
     %input to function telling it which vaccine strategy to use        
-        vac = [1,0,0];
+        vac = [0,0,1];
         
     % display all parameters
         params

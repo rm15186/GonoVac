@@ -6,7 +6,7 @@
     close all;
     %for bc shall we do 500 simulations, burn in of x days, start with 10/%
     %prevalence
-    NSims =2;
+    NSims =1;
 
     % General parmeters 
         N = 1000;          % population size

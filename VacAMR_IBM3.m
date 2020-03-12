@@ -1286,17 +1286,10 @@ classdef VacAMR_IBM3 < handle
                     if self.vac(3) && self.burn_in == 0 %dont want the vaccine in the burn in
                     %Vaccinate no prescreening - less targeted, more
                     %vaccines
-                        
+                       
                         vac_accept_rate = self.ACCEPTVACCINE;
-                        %Only vaccinate people if they've not had it in the
-                        %last 3 months 
-                        idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
-                         %sum(idx_never_vac) %1000 always :(
-                        %idx_old_vac = self.today-self.vaccinated_since > 90;  %people who last had it 3 months ago ot more
                         
-                        %idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
-                        
-                        idx_offer_vac = idx_never_vac.*idx_treat_today;
+                        idx_offer_vac = idx_treat_today;
 
                         idx_to_vaccinate3 = min(rand(self.N,1),idx_offer_vac) > 1-vac_accept_rate;
                         sum(idx_to_vaccinate3);
