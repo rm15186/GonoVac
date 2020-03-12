@@ -10,3 +10,4 @@ VacAMR_IBM3 adds 3 different vaccination strategies, the vac parameter given to 
 run_vac runs one round of the simulation with the selected vaccination strategy 
 run_avg runs a set number of simulations and plots the average prevalence, doses of the vaccine, number of people vaccinated at any one time.
 
+Sub....txt files are submission scripts I have used to run the code on blue crystal
