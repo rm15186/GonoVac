@@ -91,48 +91,94 @@
             % (not yet normalised with respect to the population size)
             
             %% give us the data
-            prev_data  %prevalence of both strains
-            prev_either_data  %prevalence of either strain
-            all_either
-            all_data
-
-            all_vac_doses
-            all_vac_current
-            all_cipr_doses
-            all_cefta_doses
-            all_burn_in_prev 
-            all_burn_in_prev_either
-            
-            prev_data = 100*data.prevalence./N;
-            plot_data = mean(all_data,3)
+%             prev_data  %prevalence of both strains
+%             prev_either_data  %prevalence of either strain
+%             all_either
+%             all_data
+% 
+%             all_vac_doses
+%             all_vac_current
+%             all_cipr_doses
+%             all_cefta_doses
+%             all_burn_in_prev 
+%             all_burn_in_prev_either
+%             
+%             prev_data = 100*data.prevalence./N;
+%             plot_data = mean(all_data,3)
+%             plot_either = mean(all_either,3)
+%             plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001?
+%             plot_burn_in_prev = mean(all_burn_in_prev,3)
+%             
+%             std_burn_in_prev_either = std(all_burn_in_prev,0,3)
+%             std_burn_in_prev = std(all_burn_in_prev,0,3)
+%             
+%             %confidence intervals
+%             %conf = std(all_data,0,3);
+%             %confe = std(all_either,0,3); %confidence interval for either strain
+%             
+%             %quartiles for error bars that dont go below 0
+%             i25 = quantile(all_data,0.25,3) %25th percentile
+%             i75 = quantile(all_data,0.75,3)%75th percentile
+%             
+%             i25e = quantile(all_either,0.25,3)
+%             i75e = quantile(all_either,0.75,3)
+%   
+%             
+%             avg_vac_current = mean(all_vac_current,2)
+%             std_vac_current = std(all_vac_current,0,2)
+%             avg_vac_doses = mean(all_vac_doses,2)
+%             std_vac_doses = std(all_vac_doses,0,2)
+%             avg_cipr_doses = mean(all_cipr_doses,2)
+%             std_cipr_doses = std(all_cipr_doses,0,2)
+%             avg_cefta_doses = mean(all_cefta_doses,2)
+%             std_cefta_doses = std(all_cefta_doses,0,2)
+%             
+%% process data stuff - should give us everything we need
+plot_data = mean(all_data,3)
             plot_either = mean(all_either,3)
-            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001?
-            plot_burn_in_prev = mean(all_burn_in_prev,3)
             
-            std_burn_in_prev_either = std(all_burn_in_prev,0,3)
-            std_burn_in_prev = std(all_burn_in_prev,0,3)
             
-            %confidence intervals
-            %conf = std(all_data,0,3);
-            %confe = std(all_either,0,3); %confidence interval for either strain
-            
+            %standard deviation at all points for plotting confidence
+            %intervals, if we want to do that
+            conf = std(all_data,0,3)
+            confe = std(all_either,0,2)
+            %size(conf);
             %quartiles for error bars that dont go below 0
             i25 = quantile(all_data,0.25,3) %25th percentile
-            i75 = quantile(all_data,0.75,3)%75th percentile
+            i75 = quantile(all_data,0.75,3;%75th percentile
             
             i25e = quantile(all_either,0.25,3)
             i75e = quantile(all_either,0.75,3)
   
+            %%burn in prevalence 
+            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001?
+            plot_burn_in_prev = mean(all_burn_in_prev,2)
+            std_burn_in_prev_either = std(all_burn_in_prev_either,0,3)
+            std_burn_in_prev = std(all_burn_in_prev,0,2)
             
+            %% current people vaccinated %
             avg_vac_current = mean(all_vac_current,2)
             std_vac_current = std(all_vac_current,0,2)
+            range_vac_current = [quantile(all_vac_current,0.25,2),quantile(all_vac_current,0.75,2)]
+            plot_range_vac_current = [avg_vac_current-range_vac_current(:,1),range_vac_current(:,2)-avg_vac_current]
+            %% doses of vaccine given
             avg_vac_doses = mean(all_vac_doses,2)
             std_vac_doses = std(all_vac_doses,0,2)
+            range_vac_doses = [quantile(all_vac_doses,0.25,2),quantile(all_vac_doses,0.75,2)]
+            plot_range_vac_doses = [avg_vac_doses-range_vac_doses(:,1),avg_vac_doses-range_vac_doses(:,2)-avg_vac_doses]
+            
+            %% doses of antibiotics - cipr not used 
             avg_cipr_doses = mean(all_cipr_doses,2)
             std_cipr_doses = std(all_cipr_doses,0,2)
+            
             avg_cefta_doses = mean(all_cefta_doses,2)
             std_cefta_doses = std(all_cefta_doses,0,2)
+            range_cefta_doses = [quantile(all_cefta_doses,0.25,2),quantile(all_cefta_doses,0.75,2)]
+            plot_range_cefta_doses = [avg_cefta_doses-range_cefta_doses(:,1),range_cefta_doses(:,2)-avg_cefta_doses]
 
+            
+            size(all_cipr_doses);
+            size(mean(all_cipr_doses,2));
 
 %% all the plots are irrelevant for bc well put this in another file
 %             %plot 25th and 75th percentiles, not standard deviation as we

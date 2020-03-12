@@ -1,11 +1,11 @@
 %% for BC Simplified script to initialise, run and plot model output 
-
+%% use replace = with =[ to get everything into matlabbable format
     %clear all;
     %clc;
     %close all;
     %for bc shall we do 500 simulations, burn in of x days, start with 10/%
     %prevalence
-    NSims = 100;
+    NSims = 10;
 
     % General parmeters 
         N = 10000;          % population size
@@ -78,7 +78,7 @@
     disp(msg1)
     
     
-    
+    msg2 = ']';
     %how much time does one simulation take, multiply that by 500 to see
     %how long a big ass run is going to take
     
@@ -91,48 +91,137 @@
             % (not yet normalised with respect to the population size)
             
             %% give us the data
-            prev_data  %prevalence of both strains
-            prev_either_data  %prevalence of either strain
-            all_either
-            all_data
+%             prev_data  %prevalence of both strains
+%             prev_either_data  %prevalence of either strain
+%             all_either
+%             all_data
+% 
+%             all_vac_doses
+%             all_vac_current
+%             all_cipr_doses
+%             all_cefta_doses
+%             all_burn_in_prev 
+%             all_burn_in_prev_either
+%             
+%             
+%             prev_data = 100*data.prevalence./N;
+%             plot_data = mean(all_data,3)
+%             plot_either = mean(all_either,3)
+%             plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001?
+%             plot_burn_in_prev = mean(all_burn_in_prev,3)
+%             
+%             std_burn_in_prev_either = std(all_burn_in_prev,0,3)
+%             std_burn_in_prev = std(all_burn_in_prev,0,3)
+%             
+%             %confidence intervals
+%             %conf = std(all_data,0,3);
+%             %confe = std(all_either,0,3); %confidence interval for either strain
+%             
+%             %quartiles for error bars that dont go below 0
+%             i25 = quantile(all_data,0.25,3) %25th percentile
+%             i75 = quantile(all_data,0.75,3)%75th percentile
+%             
+%             i25e = quantile(all_either,0.25,3)
+%             i75e = quantile(all_either,0.75,3)
+%   
+%             
+%             avg_vac_current = mean(all_vac_current,2)
+%             std_vac_current = std(all_vac_current,0,2)
+%             avg_vac_doses = mean(all_vac_doses,2)
+%             std_vac_doses = std(all_vac_doses,0,2)
+%             avg_cipr_doses = mean(all_cipr_doses,2)
+%             std_cipr_doses = std(all_cipr_doses,0,2)
+%             avg_cefta_doses = mean(all_cefta_doses,2)
+%             std_cefta_doses = std(all_cefta_doses,0,2)
 
-            all_vac_doses
-            all_vac_current
-            all_cipr_doses
-            all_cefta_doses
-            all_burn_in_prev 
-            all_burn_in_prev_either
-            
-            
-            prev_data = 100*data.prevalence./N;
+%%  give us data, but not all  of it! its a ridiculous amount of data and big arrays print in an annoying way.
             plot_data = mean(all_data,3)
-            plot_either = mean(all_either,3)
-            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001?
-            plot_burn_in_prev = mean(all_burn_in_prev,3)
+            disp(msg2)
+            plot_either = mean(all_either,3) 
+            disp(msg2)
             
-            std_burn_in_prev_either = std(all_burn_in_prev,0,3)
-            std_burn_in_prev = std(all_burn_in_prev,0,3)
-            
-            %confidence intervals
-            %conf = std(all_data,0,3);
-            %confe = std(all_either,0,3); %confidence interval for either strain
-            
+            %standard deviation at all points for plotting confidence
+            %intervals, if we want to do that
+            conf = std(all_data,0,3)
+            disp(msg2)
+            confe = std(all_either,0,3)
+            disp(msg2)
+            %size(conf);
             %quartiles for error bars that dont go below 0
             i25 = quantile(all_data,0.25,3) %25th percentile
-            i75 = quantile(all_data,0.75,3)%75th percentile
+            disp(msg2)
+            i75 = quantile(all_data,0.75,3);%75th percentile
+            disp(msg2)
             
             i25e = quantile(all_either,0.25,3)
+            disp(msg2)
             i75e = quantile(all_either,0.75,3)
-  
+            disp(msg2)
             
+            %%burn in prevalence 
+            plot_burn_in_prev_either = mean(all_burn_in_prev_either,3) %2001? %10
+            disp(msg2) 
+            plot_burn_in_prev = mean(all_burn_in_prev,3) %6,4
+            disp(msg2)
+            std_burn_in_prev_either = std(all_burn_in_prev_either,0,3)
+            disp(msg2)
+            std_burn_in_prev = std(all_burn_in_prev,0,3)
+            disp(msg2)
+            
+            %TODO write something that plots this! NEW delete this if it
+            %breaks on 50 not 45
+            i25burn1 = quantile(all_burn_in_prev(:,1),0.25,3)
+            disp(msg2)
+            i25burn2 = quantile(all_burn_in_prev(:,2),0.25,3)
+            disp(msg2)
+            i75burn1 = quantile(all_burn_in_prev(:,1),0.75,3)
+            disp(msg2)
+            i75burn2 = quantile(all_burn_in_prev(:,2),0.75,3)
+            disp(msg2)
+            i25burn_either = quantile(all_burn_in_prev_either,0.25,3)
+            disp(msg2)
+            i75burn_either = quantile(all_burn_in_prev_either,0.75,3)
+            disp(msg2)
+            plot_range_burn_either=[plot_burn_in_prev_either-i25burn_either,i75burn_either-plot_burn_in_prev_either]
+            disp(msg2)
+            plot_burn_1 = [plot_burn_in_prev(:,1)-i25burn1,i75burn1-plot_burn_in_prev(:,1)]
+            disp(msg2)
+            plot_burn_2 = [plot_burn_in_prev(:,2)-i25burn2,i75burn2-plot_burn_in_prev(:,2)]
+            disp(msg2)
+            
+
+            %% current people vaccinated %
             avg_vac_current = mean(all_vac_current,2)
+            disp(msg2)
             std_vac_current = std(all_vac_current,0,2)
+            disp(msg2)
+            range_vac_current = [quantile(all_vac_current,0.25,2),quantile(all_vac_current,0.75,2)]
+            disp(msg2)
+            plot_range_vac_current = [avg_vac_current-range_vac_current(:,1),range_vac_current(:,2)-avg_vac_current]
+            disp(msg2)
+            %% doses of vaccine given
             avg_vac_doses = mean(all_vac_doses,2)
+            disp(msg2)
             std_vac_doses = std(all_vac_doses,0,2)
+            disp(msg2)
+            range_vac_doses = [quantile(all_vac_doses,0.25,2),quantile(all_vac_doses,0.75,2)]
+            disp(msg2)
+            plot_range_vac_doses = [avg_vac_doses-range_vac_doses(:,1),range_vac_doses(:,2)-avg_vac_doses]
+            disp(msg2)
+            %% doses of antibiotics - cipr not used 
             avg_cipr_doses = mean(all_cipr_doses,2)
+            disp(msg2)
             std_cipr_doses = std(all_cipr_doses,0,2)
+            disp(msg2)
+            
             avg_cefta_doses = mean(all_cefta_doses,2)
+            disp(msg2)
             std_cefta_doses = std(all_cefta_doses,0,2)
+            disp(msg2)
+            range_cefta_doses = [quantile(all_cefta_doses,0.25,2),quantile(all_cefta_doses,0.75,2)]
+            disp(msg2)
+            plot_range_cefta_doses = [avg_cefta_doses-range_cefta_doses(:,1),range_cefta_doses(:,2)-avg_cefta_doses]
+            disp(msg2)
 
 
 %% all the plots are irrelevant for bc well put this in another file
