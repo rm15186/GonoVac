@@ -76,6 +76,7 @@
     t=toc;
     msg1 = ['time elapsed to run ' num2str(NSims) ' simulations = ' num2str(t)];
     disp(msg1)
+    msg2 = '];';
     
             plot_data = mean(all_data,3)
             disp(msg2)

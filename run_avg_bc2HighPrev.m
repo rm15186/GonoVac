@@ -76,7 +76,7 @@
     t=toc;
     msg1 = ['time elapsed to run ' num2str(NSims) ' = ' num2str(t)];
     disp(msg1)
-    
+    msg2 = '];';
 
    
 %% 

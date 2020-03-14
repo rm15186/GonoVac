@@ -1102,7 +1102,7 @@ classdef VacAMR_IBM3 < handle
                     sum(idx_to_vaccinate1);
                     sum(new_vac_state);
                     %any(new_vac_state); it is working!
-                    self.vaccinated_since(idx_to_vaccinate1) = self.today;
+                    self.vaccinated_since(idx_to_vaccinate1) = self.today; %not very true 
                     self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate1,1);
                 end
                 % clear notifications for deceased individuals
@@ -1166,7 +1166,7 @@ classdef VacAMR_IBM3 < handle
                     idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
                     %sum(idx_never_vac) %1000 always :(
                     idx_old_vac = self.today-self.vaccinated_since > y*365;  %people who last had it y years ago or more
-                    %sum(idx_old_vac) %sometimes a few
+                    %debug - sum(idx_old_vac) %sometimes a few
                     idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
                    
                     %of these who is being screened today
@@ -1292,15 +1292,13 @@ classdef VacAMR_IBM3 < handle
                         idx_offer_vac = idx_treat_today;
 
                         idx_to_vaccinate3 = min(rand(self.N,1),idx_offer_vac) > 1-vac_accept_rate;
-                        sum(idx_to_vaccinate3);
+                        %sum(idx_to_vaccinate3); %debug
                         new_vac_state(idx_to_vaccinate3) = 1; 
-                        size(new_vac_state);
-                        sum(new_vac_state);
+                        
 
                         self.vaccinated_since(idx_to_vaccinate3) = self.today;
                         self.counters.vac_doses_today(self.today+1) = sum(idx_to_vaccinate3,1); 
-                        self.counters.vac_doses_today(self.today+1);
-                        sum(idx_to_vaccinate3,1); %does seem to be working!
+                        %sum(idx_to_vaccinate3,1); %does seem to be working!
                     end
                     sum(new_vac_state); %working!
                     
