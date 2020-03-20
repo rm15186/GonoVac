@@ -131249,6 +131249,7 @@ n_Days = 4000;
                 legend('Either Strain','Non-AMR','AMR','fontsize',14,'Interpreter','latex');
                 xlabel('Time (days)','fontsize',14,'Interpreter','latex')
                 ylabel('Average Prevalence (%)','fontsize',14,'Interpreter','latex');
+                
                 box on;
                 grid on;
             
@@ -131317,12 +131318,14 @@ n_Days = 4000;
                      size(std_burn_in_prev(:,1));
                      size(plot_burn_in_prev);
                      size(std_burn_in_prev_either);
-                     shadedErrorBar([0:3000],plot_burn_in_prev_either,[std_burn_in_prev_either],'lineprops','k')
+                     
                      shadedErrorBar([0:3000],plot_burn_in_prev(:,1),[std_burn_in_prev(:,1),std_burn_in_prev(:,1)],'lineprops','b')
                      shadedErrorBar([0:3000],plot_burn_in_prev(:,2),[std_burn_in_prev(:,2),std_burn_in_prev(:,2)],'lineprops','r')
-                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
-                     ylabel('prevalence in burn in','fontsize',14,'Interpreter','latex');
-                     title('prevalence over burn in period','fontsize',14,'Interpreter','latex');
+                     shadedErrorBar([0:3000],plot_burn_in_prev_either,[std_burn_in_prev_either],'lineprops','k')
+                     xlabel('Time (days)','fontsize',16,'Interpreter','latex');
+                     ylabel('prevalence in burn in','fontsize',16,'Interpreter','latex');
+                     %title('prevalence over burn in period','fontsize',16,'Interpreter','latex');
+                     legend('Non-AMR','AMR','Total Prevalence','fontsize',16,'Interpreter','latex');
                      box on;
                      grid on;
                      
