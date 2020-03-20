@@ -250,7 +250,7 @@ classdef VacAMR_IBM3 < handle
                 self.RESTRICT_RATE = params.RESTRICT_RATE;
                 self.R = params.R;
                 self.MU = params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
-                self.BETA = 1.3*params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
+                self.BETA = params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
                 self.GAMMA = params.GAMMA;
                 self.PSI = params.PSI;
                 self.MAX_TRACE = params.MAX_TRACE;
@@ -1514,8 +1514,10 @@ classdef VacAMR_IBM3 < handle
                         self.counters.drug_count(idx_treat_as_AMR,2) = self.counters.drug_count(idx_treat_as_AMR,2) + 1;
                         
                         % log total # CEFT/A prescriptions for today
-                        self.counters.cefta(self.today+1) = sum(idx_treat_as_AMR,1);
-                        
+                        %self.counters.cefta(self.today+1) = sum(idx_treat_as_AMR,1);
+                         if self.burn_in == 0
+                            self.counters.cefta(self.today+1) = sum(idx_treat_as_AMR,1);
+                        end
                         % log number of 'correct' CEFT/A prescriptions
                         % (i.e. individuals had AMR infection)
                         self.counters.cefta_AMR(self.today+1) = sum(current_state(idx_treat_as_AMR,2) == 1, 1);

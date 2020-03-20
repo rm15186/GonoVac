@@ -29,10 +29,11 @@
 %
 %  LAST UPDATED:   20/10/16
 
-classdef VacAMR_IBM3 < handle
+classdef VacAMR_IBM3HighPrev < handle
     properties
         
         % Sexual partnership network parameters
+       
         % --------------------------------      
         N;              % population size (number of individuals)   
         ALPHA;          % power-law network (slope) P(k) ~ k^-ALPHA
@@ -214,7 +215,7 @@ classdef VacAMR_IBM3 < handle
 
         methods
             % Class Constructor
-            function [self] = VacAMR_IBM3(N, params, adj_set, VERBOSE, LOW_MEM, vac)
+            function [self] = VacAMR_IBM3HighPrev(N, params, adj_set, VERBOSE, LOW_MEM, vac)
                 
                 % switch on/off console output if specified
                 if nargin == 5
@@ -250,7 +251,7 @@ classdef VacAMR_IBM3 < handle
                 self.RESTRICT_RATE = params.RESTRICT_RATE;
                 self.R = params.R;
                 self.MU = params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
-                self.BETA = params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
+                self.BETA = 1.3*params.BETA; %2.23*10-3? %1.3* gives about 6\% prev 1.5 gives like 9\% prev
                 self.GAMMA = params.GAMMA;
                 self.PSI = params.PSI;
                 self.MAX_TRACE = params.MAX_TRACE;
@@ -437,30 +438,30 @@ classdef VacAMR_IBM3 < handle
                 self.param_updates = {};
                     
                 % console output
-                if self.VERBOSE
-                    fprintf(['\n--------------------------------------------------\n',...
-                                'Multi-strain SIS\n',...
-                                '------------------\n']);
-                    fprintf(['Population size (N) \t\t= ',num2str(self.N),...
-                        '\nNumber of Strains \t\t= ',num2str(self.n_Strains),...
-                        '\nInfection rate (Beta) \t\t= ',sprintf('%.2s',self.BETA(1)),' (non-AMR), ',sprintf('%.2s',self.BETA(2)),' (AMR)',...
-                        '\nNatural recovery rate (R) \t= ',sprintf('%.2s',self.R),...
-                        '\nBirth/death rate (MU) \t\t= ',sprintf('%.2s',self.MU),...
-                        '\nScreening rate (GAMMA) \t\t= ',sprintf('%.2s',self.GAMMA),...
-                        '\nTracing efficiency (PSI) \t= ',sprintf('%.2f',self.PSI),...
-                        '\n\n']);
-                end
+%                 if self.VERBOSE
+%                     fprintf(['\n--------------------------------------------------\n',...
+%                                 'Multi-strain SIS\n',...
+%                                 '------------------\n']);
+%                     fprintf(['Population size (N) \t\t= ',num2str(self.N),...
+%                         '\nNumber of Strains \t\t= ',num2str(self.n_Strains),...
+%                         '\nInfection rate (Beta) \t\t= ',sprintf('%.2s',self.BETA(1)),' (non-AMR), ',sprintf('%.2s',self.BETA(2)),' (AMR)',...
+%                         '\nNatural recovery rate (R) \t= ',sprintf('%.2s',self.R),...
+%                         '\nBirth/death rate (MU) \t\t= ',sprintf('%.2s',self.MU),...
+%                         '\nScreening rate (GAMMA) \t\t= ',sprintf('%.2s',self.GAMMA),...
+%                         '\nTracing efficiency (PSI) \t= ',sprintf('%.2f',self.PSI),...
+%                         '\n\n']);
+%                 end
                 
                 % generate (static) partership network structure
-                    if self.VERBOSE
-                        if isempty(adj_set)
-                            fprintf(['Generating scale-free network structure with ALPHA = ',num2str(self.ALPHA),' ....']);
-                        else
-                            fprintf(['Using pre-generated network with ALPHA = ', num2str(adj_set.alpha_out),'....']);
-                        end
-                    end
+%                     if self.VERBOSE
+%                         if isempty(adj_set)
+%                             fprintf(['Generating scale-free network structure with ALPHA = ',num2str(self.ALPHA),' ....']);
+%                         else
+%                             fprintf(['Using pre-generated network with ALPHA = ', num2str(adj_set.alpha_out),'....']);
+%                         end
+%                     end
 
-                    tic;
+                    %tic;
                     if isempty(adj_set)
                         self.adj_full = [];
                         % loop mitigates minor bug producing errors for very small N<10 networks
@@ -476,7 +477,7 @@ classdef VacAMR_IBM3 < handle
                         self.adj_xmin = adj_set.x_min;
                         self.adj_L = adj_set.L;
                     end
-                    network_elapsed = toc;
+                    %network_elapsed = toc;
                 
 
                 % degree sequence of full network generated 
@@ -515,11 +516,11 @@ classdef VacAMR_IBM3 < handle
                 %------------------------------------------------------
                 
                 % console output
-                if self.VERBOSE
-                    fprintf(['[DONE - in ',sprintf('%.2f',network_elapsed),' sec]']);
-                    fprintf(['\n\t> mean degree (ave. partners) \t= ',sprintf('%.2f',self.mean_degree_full)]);
-                    fprintf(['\n\t> # connected components \t= ',num2str(self.n_Comp),'\n\n']);
-                end
+%                 if self.VERBOSE
+%                     fprintf(['[DONE - in ',sprintf('%.2f',network_elapsed),' sec]']);
+%                     fprintf(['\n\t> mean degree (ave. partners) \t= ',sprintf('%.2f',self.mean_degree_full)]);
+%                     fprintf(['\n\t> # connected components \t= ',num2str(self.n_Comp),'\n\n']);
+%                 end
                 
               %% Infect population on day zero
                 
@@ -652,7 +653,7 @@ classdef VacAMR_IBM3 < handle
                 reverseStr = '';
                 
                 % start timer
-                tic;
+                %tic;
                 
                 % set defaults
                 start_day = self.today;
@@ -777,15 +778,15 @@ classdef VacAMR_IBM3 < handle
                   %% console output - show progress on screen
                     if self.VERBOSE && ~self.DEBUG
                         if self.burn_in
-                            percentDone = day_count;
-                            msg = [sprintf('Burning in... %3.0f', percentDone), ' days'];
-                            fprintf([reverseStr, msg]);
-                            reverseStr = repmat(sprintf('\b'), 1, length(msg));
+                            %percentDone = day_count;
+                            %msg = [sprintf('Burning in... %3.0f', percentDone), ' days'];
+                            %fprintf([reverseStr, msg]);
+                            %reverseStr = repmat(sprintf('\b'), 1, length(msg));
                         else
-                            percentDone = 100 * day_count / n_Days;
-                            msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
-                            fprintf([reverseStr, msg]);
-                            reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
+                            %percentDone = 100 * day_count / n_Days;
+                            %msg = [sprintf('Simulating... %3.1f', percentDone), '%%']; 
+                            %fprintf([reverseStr, msg]);
+                            %reverseStr = repmat(sprintf('\b'), 1, length(msg)-1);
                         end
                     end
                     
@@ -867,11 +868,11 @@ classdef VacAMR_IBM3 < handle
                 
                 
                 end
-                loop_elapsed = toc;
+                %loop_elapsed = toc;
                 %diary on;
 
                 % Simulation loop complete - output to console
-              if self.VERBOSE; fprintf([' [DONE - in ',sprintf('%.2f',loop_elapsed),' sec]\n']);end
+              %if self.VERBOSE; fprintf([' [DONE - in ',sprintf('%.2f',loop_elapsed),' sec]\n']);end
                  
                 
             end % simulate function
@@ -1288,16 +1289,8 @@ classdef VacAMR_IBM3 < handle
                     %vaccines
                         
                         vac_accept_rate = self.ACCEPTVACCINE;
-                        %Only vaccinate people if they've not had it in the
-                        %last 3 months 
-                        idx_old_vac = self.today-self.vaccinated_since > y*365
-                        idx_never_vac = isnan(self.vaccinated_since); %people who have never had it
-                         %sum(idx_never_vac) %1000 always :(
-                        %idx_old_vac = self.today-self.vaccinated_since > 90;  %people who last had it 3 months ago ot more
                         
-                        %idx_need_vac = idx_never_vac + idx_old_vac; %cant both be true
-                        
-                        idx_offer_vac = idx_never_vac.*idx_treat_today;
+                        idx_offer_vac = idx_treat_today;
 
                         idx_to_vaccinate3 = min(rand(self.N,1),idx_offer_vac) > 1-vac_accept_rate;
                         sum(idx_to_vaccinate3);
@@ -1522,8 +1515,9 @@ classdef VacAMR_IBM3 < handle
                         self.counters.drug_count(idx_treat_as_AMR,2) = self.counters.drug_count(idx_treat_as_AMR,2) + 1;
                         
                         % log total # CEFT/A prescriptions for today
-                        self.counters.cefta(self.today+1) = sum(idx_treat_as_AMR,1);
-                        
+                         if self.burn_in == 0
+                            self.counters.cefta(self.today+1) = sum(idx_treat_as_AMR,1);
+                        end
                         % log number of 'correct' CEFT/A prescriptions
                         % (i.e. individuals had AMR infection)
                         self.counters.cefta_AMR(self.today+1) = sum(current_state(idx_treat_as_AMR,2) == 1, 1);
@@ -1981,7 +1975,7 @@ classdef VacAMR_IBM3 < handle
                 self.fig_h = [h_prev, h_inc, h_doses, h_attend, h_AMR_ratio];
                 self.plot_names = {n_prev, n_inc, n_doses, n_attend, n_AMR_ratio};
                 
-                if self.VERBOSE;fprintf('[DONE]\n');end           
+                %if self.VERBOSE;fprintf('[DONE]\n');end           
               
             end
             
@@ -2019,7 +2013,7 @@ classdef VacAMR_IBM3 < handle
                 copyfile('VacAMR_IBM3.m',['./outdata/',self.DIR_NAME,'/VacAMR_IBM3.m']);
                 
                 % console output
-                if self.VERBOSE;fprintf('[DONE]\n\n');end
+               % if self.VERBOSE;fprintf('[DONE]\n\n');end
     
             end
             
@@ -2184,9 +2178,9 @@ classdef VacAMR_IBM3 < handle
                 [alpha_cont,x_cont,L_cont] = VacAMR_IBM3.plfit(node_degree);
                 [alpha_int,x_int,L_int] = VacAMR_IBM3.plfit(int_node_degree);
                 [alpha_adj,x_adj,L_adj] = VacAMR_IBM3.plfit(full(sum(adj,2)));
-                display(['alpha (continuous): ',num2str(alpha_cont)]);  
-                display(['alpha (integers): ',num2str(alpha_int)]);
-                display(['alpha (network): ',num2str(alpha_adj)]);
+                %display(['alpha (continuous): ',num2str(alpha_cont)]);  
+                %display(['alpha (integers): ',num2str(alpha_int)]);
+                %display(['alpha (network): ',num2str(alpha_adj)]);
        
             end  % function
             

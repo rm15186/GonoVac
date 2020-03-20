@@ -1,6 +1,6 @@
 % plot_processed data in the normal style with std for everything except
 % prevalence post vaccine
-
+N = 10000;
 n_Days = 4000;
 
             close all
@@ -38,9 +38,9 @@ n_Days = 4000;
                 figure('name','Dosage','color','w');
                     hold on;
                    
-                    shadedErrorBar([0:n_Days], cumsum(avg_cipr_doses(:,1)),[std_cipr_doses(:,:,1),std_cipr_doses(:,:,1)]);
+                    %shadedErrorBar([0:n_Days], cumsum(avg_cipr_doses(:,1)),[std_cipr_doses(:,:,1),std_cipr_doses(:,:,1)]);
                     shadedErrorBar([0:n_Days],cumsum(avg_cefta_doses(:,1)),[std_cefta_doses(:,:,1),std_cefta_doses(:,:,1)]);
-                    legend('Cipr/A','Ceft/A','location','northwest','fontsize',14,'Interpreter','latex');
+                    %legend('Cipr/A','Ceft/A','location','northwest','fontsize',14,'Interpreter','latex');
                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
                     ylabel('Number of doses','fontsize',14,'Interpreter','latex')
                     title('Cumulative drug doses administered','fontsize',14,'Interpreter','latex');
@@ -61,11 +61,13 @@ n_Days = 4000;
                     
                 figure('name','average no. of vaccinated people');
                     hold on;
+                    avg_vac_current = 100*avg_vac_current/N;
+                    std_vac_current = 100^2*std_vac_current/N^2; %normalise
                     plot([0:n_Days], avg_vac_current);
                     shadedErrorBar([0:n_Days],avg_vac_current,[std_vac_current(:,1),std_vac_current(:,1)])
                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
-                    ylabel('average no of people protected by the vaccine','fontsize',14,'Interpreter','latex');
-                    title('average no of people protected','fontsize',14,'Interpreter','latex');
+                    ylabel('Average percentage of people protected','fontsize',14,'Interpreter','latex');
+                    %title('average no of people protected','fontsize',14,'Interpreter','latex');
                     box on;
                 grid on;
                 

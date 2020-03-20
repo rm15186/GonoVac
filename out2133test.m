@@ -10,13 +10,13 @@ MATLAB is selecting SOFTWARE OPENGL rendering.
                   R2019a (9.6.0.1072779) 64-bit (glnxa64)
                                March 8, 2019
 
- 
+
 To get started, type doc.
 For product information, visit www.mathworks.com.
- 
-time elapsed to run 10 = 4731.0853
 
-plot_data =
+time elapsed to run 10 =[ 4731.0853
+
+plot_data =[
 
     1.3770    0.8910
     1.3780    0.8810
@@ -4022,7 +4022,7 @@ plot_data =
 
 ];
 
-plot_either =
+plot_either =[
 
     2.2060
     2.1990
@@ -8028,7 +8028,7 @@ plot_either =
 
 ];
 
-conf =
+conf =[
 
     0.5248    0.4410
     0.5263    0.4336
@@ -12034,7 +12034,7 @@ conf =
 
 ];
 
-confe =
+confe =[
 
     0.3839
     0.3824
@@ -16040,7 +16040,7 @@ confe =
 
 ];
 
-i25 =
+i25 =[
 
     1.2100    0.4600
     1.2100    0.4500
@@ -20046,7 +20046,7 @@ i25 =
 
 ];
 
-i75 =
+i75 =[
 
     1.6600    1.1600
     1.7100    1.1400
@@ -24052,7 +24052,7 @@ i75 =
 
 ];
 
-i25e =
+i25e =[
 
     2.0200
     2.0200
@@ -28058,7 +28058,7 @@ i25e =
 
 ];
 
-i75e =
+i75e =[
 
     2.4700
     2.4800
@@ -32064,7 +32064,7 @@ i75e =
 
 ];
 
-plot_burn_in_prev_either =
+plot_burn_in_prev_either =[
 
          0
     9.9960
@@ -35070,7 +35070,7 @@ plot_burn_in_prev_either =
 
 ];
 
-plot_burn_in_prev =
+plot_burn_in_prev =[
 
          0         0
     6.0000    4.0010
@@ -38076,7 +38076,7 @@ plot_burn_in_prev =
 
 ];
 
-std_burn_in_prev_either =
+std_burn_in_prev_either =[
 
          0
     0.0246
@@ -41082,7 +41082,7 @@ std_burn_in_prev_either =
 
 ];
 
-std_burn_in_prev =
+std_burn_in_prev =[
 
          0         0
     0.0254    0.0288
@@ -44088,7 +44088,7 @@ std_burn_in_prev =
 
 ];
 
-i25burn1 =
+i25burn1 =[
 
          0
     5.9900
@@ -47094,7 +47094,7 @@ i25burn1 =
 
 ];
 
-i25burn2 =
+i25burn2 =[
 
          0
     4.0300
@@ -50100,7 +50100,7 @@ i25burn2 =
 
 ];
 
-i75burn1 =
+i75burn1 =[
 
          0
     5.9900
@@ -53106,7 +53106,7 @@ i75burn1 =
 
 ];
 
-i75burn2 =
+i75burn2 =[
 
          0
     4.0300
@@ -56112,7 +56112,7 @@ i75burn2 =
 
 ];
 
-i25burn_either =
+i25burn_either =[
 
          0
     9.9700
@@ -59118,7 +59118,7 @@ i25burn_either =
 
 ];
 
-i75burn_either =
+i75burn_either =[
 
          0
    10.0100
@@ -62124,7 +62124,7 @@ i75burn_either =
 
 ];
 
-plot_range_burn_either =
+plot_range_burn_either =[
 
          0         0
     0.0260    0.0140
@@ -65130,7 +65130,7 @@ plot_range_burn_either =
 
 ];
 
-plot_burn_1 =
+plot_burn_1 =[
 
          0         0
     0.0100   -0.0100
@@ -68136,7 +68136,7 @@ plot_burn_1 =
 
 ];
 
-plot_burn_2 =
+plot_burn_2 =[
 
          0         0
    -0.0290    0.0290
@@ -71142,7 +71142,7 @@ plot_burn_2 =
 
 ];
 
-avg_vac_current =
+avg_vac_current =[
 
    1.0e+03 *
 
@@ -75150,7 +75150,7 @@ avg_vac_current =
 
 ];
 
-std_vac_current =
+std_vac_current =[
 
          0
          0
@@ -79156,7 +79156,7 @@ std_vac_current =
 
 ];
 
-range_vac_current =
+range_vac_current =[
 
            0           0
            0           0
@@ -83162,7 +83162,7 @@ range_vac_current =
 
 ];
 
-plot_range_vac_current =
+plot_range_vac_current =[
 
          0         0
          0         0
@@ -87168,7 +87168,7 @@ plot_range_vac_current =
 
 ];
 
-avg_vac_doses =
+avg_vac_doses =[
 
          0
     1.9000
@@ -91174,7 +91174,7 @@ avg_vac_doses =
 
 ];
 
-std_vac_doses =
+std_vac_doses =[
 
          0
     1.1972
@@ -95180,7 +95180,7 @@ std_vac_doses =
 
 ];
 
-range_vac_doses1 =
+range_vac_doses1 =[
 
      0
      1
@@ -99186,7 +99186,7 @@ range_vac_doses1 =
 
 ];
 
-range_vac_doses2 =
+range_vac_doses2 =[
 
      0
      3
@@ -103192,7 +103192,7 @@ range_vac_doses2 =
 
 ];
 
-plot_range_vac_doses =
+plot_range_vac_doses =[
 
          0         0
     0.9000    1.1000
@@ -107198,7 +107198,7 @@ plot_range_vac_doses =
 
 ];
 
-avg_cipr_doses =
+avg_cipr_doses =[
 
      0
      0
@@ -111204,7 +111204,7 @@ avg_cipr_doses =
 
 ];
 
-std_cipr_doses =
+std_cipr_doses =[
 
      0
      0
@@ -115210,7 +115210,7 @@ std_cipr_doses =
 
 ];
 
-avg_cefta_doses =
+avg_cefta_doses =[
 
          0
     3.5000
@@ -119216,7 +119216,7 @@ avg_cefta_doses =
 
 ];
 
-std_cefta_doses =
+std_cefta_doses =[
 
          0
     2.1213
@@ -123222,7 +123222,7 @@ std_cefta_doses =
 
 ];
 
-range_cefta_doses =
+range_cefta_doses =[
 
      0     0
      2     6
@@ -127228,7 +127228,7 @@ range_cefta_doses =
 
 ];
 
-plot_range_cefta_doses =
+plot_range_cefta_doses =[
 
          0         0
     1.5000    2.5000
