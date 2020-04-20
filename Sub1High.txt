@@ -18,4 +18,4 @@ module add apps/matlab-r2019a
 #! NB have limited MATLAB to a single thread 
 options="-nodesktop -noFigureWindows -singleCompThread"
 #! Run MATLAB in batch mode 
-matlab $options -r run_avg1High
+matlab $options -r run_avg_control_high

@@ -168,5 +168,11 @@
             disp(msg2)
             plot_range_cefta_doses = [avg_cefta_doses-range_cefta_doses(:,1),range_cefta_doses(:,2)-avg_cefta_doses]
             disp(msg2)
+            a = zeros(NSims,1);
+            for i = 1:NSims
+                a(i) = all_either(4000,1,i);
+            end
+            finalPrev = a
+            disp(']')
 
 

@@ -131302,6 +131302,7 @@ n_Days = 4000;
                     std_vac_current1 = 100^2*std_vac_current/N^2; %normalise
                     plot([0:n_Days], avg_vac_current1);
                     shadedErrorBar([0:n_Days],avg_vac_current1,[std_vac_current1(:,1),std_vac_current1(:,1)])
+                    plot([0:n_Days],avg_vac_current1,'linewidth',2);
                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
                     ylabel('Average percentage of people protected','fontsize',14,'Interpreter','latex');
                     %title('average no of people protected','fontsize',14,'Interpreter','latex');
@@ -131344,14 +131345,14 @@ n_Days = 4000;
                  size(days);
                  figure('name','steady state then vaccine');
                     hold on;
-                    plot(days,plot_change_either,'k-');
-                    plot(days,plot_change(:,1),'b-');
+                    plot(days,plot_change_either,'k-','linewidth',2);
+                    plot(days,plot_change(:,1),'b-','linewidth',2);
                     plot(days,plot_change(:,2),'r-')
                     xline(500);
-                    xlabel('Time (days)','fontsize',14,'Interpreter','latex');
-                    ylabel('Prevalence (%)','fontsize',14,'Interpreter','latex');
-                    title('Impact of vaccine on prevalence','fontsize',14,'Interpreter','latex');
-                    legend('Eiter Strain','Non-AMR','AMR','fontsize',14,'Interpreter','latex')
+                    xlabel('Time (days)','fontsize',18,'Interpreter','latex');
+                    ylabel('Prevalence (%)','fontsize',18,'Interpreter','latex');
+                    %title('Impact of vaccine on prevalence','fontsize',14,'Interpreter','latex');
+                    legend('Eiter Strain','Non-AMR','AMR','fontsize',18,'Interpreter','latex')
                     box on;
                     grid on;
                  

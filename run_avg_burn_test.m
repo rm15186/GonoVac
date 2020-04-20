@@ -5,7 +5,7 @@
     %close all;
     %for bc shall we do 500 simulations, burn in of x days, start with 10/%
     %prevalence
-    NSims = 100;
+    NSims = 10;
 
     % General parmeters 
         N = 10000;          % population size
@@ -110,7 +110,14 @@
             
             i25e = quantile(all_either,0.25,3)
             i75e = quantile(all_either,0.75,3)
-  
+          
+            
+            a = zeros(NSims,1);
+            for i = 1:NSims
+                a(i) = all_either(4000,1,i);
+            end
+            finalPrev = a
+            disp(']')
             
             avg_vac_current = mean(all_vac_current,2)
             std_vac_current = std(all_vac_current,0,2)

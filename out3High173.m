@@ -131323,8 +131323,8 @@ n_Days = 4000;
                      shadedErrorBar([0:3000],plot_burn_in_prev(:,2),[std_burn_in_prev(:,2),std_burn_in_prev(:,2)],'lineprops','r')
                      shadedErrorBar([0:3000],plot_burn_in_prev_either,[std_burn_in_prev_either],'lineprops','k')
                      xlabel('Time (days)','fontsize',16,'Interpreter','latex');
-                     ylabel('prevalence in burn in','fontsize',16,'Interpreter','latex');
-                     %title('prevalence over burn in period','fontsize',16,'Interpreter','latex');
+                     ylabel('Prevalence (%)','fontsize',16,'Interpreter','latex');
+                     %title('pre£valence over burn in period','fontsize',16,'Interpreter','latex');
                      legend('Non-AMR','AMR','Total Prevalence','fontsize',16,'Interpreter','latex');
                      box on;
                      grid on;

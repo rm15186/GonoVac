@@ -279,7 +279,7 @@ classdef VacAMR_IBM3 < handle
                 self.ALLOW_TREAT = params.ALLOW_TREAT; %all treatment is ceft
                 self.P = 0.85; %TODO this is dodgy put it in the param file
                 self.EFFICACY = 0.31; %31% protection from infection every day
-                self.LENGTHOFPROTECTION = 3; %years
+                self.LENGTHOFPROTECTION = 6; %years
                 self.ACCEPTVACCINE = 0.45;
        
                 %-----------------------------------------------------------------
@@ -947,7 +947,7 @@ classdef VacAMR_IBM3 < handle
              
                 % susceptible individuals to infect with specific strain
                 % today
-                double_vac_state = [current_vac_state,current_vac_state];       
+                double_vac_state = self.EFFICACY*[current_vac_state,current_vac_state];       
                 %idx_infect = max(rand(self.N,self.n_Strains),double_vac_state) < infect_force;
                 %decrease risk for vaccinated people, according to def. of
                 %efficacy

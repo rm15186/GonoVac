@@ -1,4 +1,4 @@
-%% Two-strain (nonAMR/AMR) coinfection SIS model for Gonorrhea
+%%% Two-strain (nonAMR/AMR) coinfection SIS model for Gonorrhea
 %  This is the main class library - run model via the run_simple.m script
 %   
 %   - Static, scale-free partnership network
@@ -250,7 +250,7 @@ classdef VacAMR_IBM3 < handle
                 self.RESTRICT_RATE = params.RESTRICT_RATE;
                 self.R = params.R;
                 self.MU = params.MU; %changing it back up doesnt actually seem to fix it! 4.6*10^5;
-                self.BETA = 2*params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
+                self.BETA = params.BETA; %2.23*10-3? %1.3* gives about 6\% prev
                 self.GAMMA = params.GAMMA;
                 self.PSI = params.PSI;
                 self.MAX_TRACE = params.MAX_TRACE;
@@ -584,7 +584,7 @@ classdef VacAMR_IBM3 < handle
                 % Population data updated for day zero
                 self.today = 0;       
                 
-                self.burn_in =  1;%1;%params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
+                self.burn_in =  0;%1;%params.burn_in; %set to 1 and it crashes because of my vac counter but also just nevers stops buring in
                 
 
             
@@ -949,7 +949,7 @@ classdef VacAMR_IBM3 < handle
              
                 % susceptible individuals to infect with specific strain
                 % today
-                double_vac_state = [current_vac_state,current_vac_state];       
+                double_vac_state = self.EFFICACY*[current_vac_state,current_vac_state];       
                 %idx_infect = max(rand(self.N,self.n_Strains),double_vac_state) < infect_force;
                 %decrease risk for vaccinated people, according to def. of
                 %efficacy

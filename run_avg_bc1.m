@@ -8,7 +8,7 @@
     NSims = 100;
 
     % General parmeters 
-        N = 1000;          % population size
+        N = 10000;          % population size
         n_Days = 4000; %10*365;     % days to simulate about 5 years
         %fewer than 10 days and the error bars behave strangely
     
@@ -168,5 +168,12 @@
             disp(msg2)
             plot_range_cefta_doses = [avg_cefta_doses-range_cefta_doses(:,1),range_cefta_doses(:,2)-avg_cefta_doses]
             disp(msg2)
+            
+            a = zeros(NSims,1);
+            for i = 1:NSims
+                a(i) = all_either(4000,1,i);
+            end
+            finalPrev = a
+            disp(']')
 
 

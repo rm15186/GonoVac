@@ -1,20 +1,20 @@
-Time is Mon Mar 16 17:40:18 GMT 2020
-Directory is /newhome/rm15186
-PBS job ID is 9222659.master.cm.cluster
-This jobs runs on the following nodes:
-node34-034
-MATLAB is selecting SOFTWARE OPENGL rendering.
-
-                            < M A T L A B (R) >
-                  Copyright 1984-2019 The MathWorks, Inc.
-                  R2019a (9.6.0.1072779) 64-bit (glnxa64)
-                               March 8, 2019
-
- 
-To get started, type doc.
-For product information, visit www.mathworks.com.
- 
-time elapsed to run 100 = 58936.1818
+% Time is Mon Mar 16 17:40:18 GMT 2020
+% Directory is /newhome/rm15186
+% PBS job ID is 9222659.master.cm.cluster
+% This jobs runs on the following nodes:
+% node34-034
+% MATLAB is selecting SOFTWARE OPENGL rendering.
+% 
+%                             < M A T L A B (R) >
+%                   Copyright 1984-2019 The MathWorks, Inc.
+%                   R2019a (9.6.0.1072779) 64-bit (glnxa64)
+%                                March 8, 2019
+% 
+%  
+% To get started, type doc.
+% For product information, visit www.mathworks.com.
+%  
+% time elapsed to run 100 = 58936.1818
 
 plot_data =
 
