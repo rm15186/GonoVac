@@ -5,7 +5,7 @@
     %close all;
     %for bc shall we do 500 simulations, burn in of x days, start with 10/%
     %prevalence
-    NSims = 100;
+    NSims = 10;
 
     % General parmeters 
         N = 10000;          % population size
@@ -175,5 +175,23 @@
             end
             finalPrev = a
             disp(']')
+            
+           %want to do this for drug doses and people vaccinated too (jusr
+           %report figres no space for more boxplots
+           
+           b = zeros(NSims,1);
+           for j = 1:NSims
+               b(i) = all_cefta_doses(4000,i);
+           end
+           finalDrug = b
+           disp(']')
+           
+           c = zeros(NSims,1);
+           for k = 1:NSims
+               c(i) = all_vac_current(4000,i);
+           end
+           finalPeople = c
+           disp(']')
+           
 
 

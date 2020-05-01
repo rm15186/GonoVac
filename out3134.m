@@ -131399,7 +131399,8 @@ n_Days = 4000;
                     hold on;
                     avg_vac_current3 = 100*avg_vac_current/N;
                     std_vac_current = 100^2*std_vac_current/N^2; %normalise
-                    plot([0:n_Days], avg_vac_current1High);
+                    vac_people62 = 100*avg_vac_current/N;
+                    %plot([0:n_Days], avg_vac_current1High);
                     shadedErrorBar([0:n_Days],avg_vac_current,[std_vac_current(:,1),std_vac_current(:,1)])
                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
                     ylabel('Average percentage of people protected','fontsize',14,'Interpreter','latex');
@@ -131422,9 +131423,11 @@ n_Days = 4000;
                      shadedErrorBar([0:3000],plot_burn_in_prev_either,[std_burn_in_prev_either],'lineprops','k')
                      shadedErrorBar([0:3000],plot_burn_in_prev(:,1),[std_burn_in_prev(:,1),std_burn_in_prev(:,1)],'lineprops','b')
                      shadedErrorBar([0:3000],plot_burn_in_prev(:,2),[std_burn_in_prev(:,2),std_burn_in_prev(:,2)],'lineprops','r')
-                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
-                     ylabel('prevalence in burn in','fontsize',14,'Interpreter','latex');
-                     title('prevalence over burn in period','fontsize',14,'Interpreter','latex');
+                     xlabel('Time (days)','fontsize',22,'Interpreter','latex');
+                     ylabel('Prevalence (\%)','fontsize',22,'Interpreter','latex');
+                     %title('prevalence over burn in period','fontsize',20,'Interpreter','latex');
+                     legend('Non-AMR','AMR','Total Prevalence','fontsize',20,'Interpreter','latex');
+                     box on;
                      box on;
                      grid on;
                      

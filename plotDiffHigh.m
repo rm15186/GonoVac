@@ -11,9 +11,9 @@
     xline(0);
     %plot(days,plot_change3(:,1),'b:');
     %plot(days,plot_change3(:,2),'r:');
-    xlabel('Time (days)','fontsize',18,'Interpreter','latex');
-    ylabel('Prevalence (%)','fontsize',18,'Interpreter','latex');
-    legend('Strategy 1 - Vaccination in Childhood','Strategy 2 - Vaccination at Screening','Strategy 3 - Vaccination at Diagnosis','fontsize',18,'Interpreter','latex');
+    xlabel('Time (days)','fontsize',22,'Interpreter','latex');
+    ylabel('Prevalence (\%)','fontsize',22,'Interpreter','latex');
+    legend('Strategy 1 - Vaccination in Childhood','Strategy 2 - Vaccination at Screening','Strategy 3 - Vaccination at Diagnosis','fontsize',20,'Interpreter','latex');
     
     box on;
     grid on;
@@ -31,10 +31,10 @@
         %shadedErrorBar([0:n_Days],avg_vac_current1,[std_vac_current1(:,1),std_vac_current1(:,1)]);
         %shadedErrorBar([0:n_Days],avg_vac_current2,[std_vac_current2(:,1),std_vac_current2(:,1)]);
         %shadedErrorBar([0:n_Days],avg_vac_current3,[std_vac_current3(:,1),std_vac_current3(:,1)]);
-        xlabel('Time (days)','fontsize',18,'Interpreter','latex');
-        ylabel('Average percentage of people protected','fontsize',18,'Interpreter','latex');
+        xlabel('Time (days)','fontsize',22,'Interpreter','latex');
+        ylabel('People protected (\%)','fontsize',22,'Interpreter','latex');
         %title('average no of people protected','fontsize',14,'Interpreter','latex');
-        legend('Strategy 1 - Vaccination in Childhood','Strategy 2 - Vaccination at Screening','Strategy 3 - Vaccination at Diagnosis','fontsize',18,'Interpreter','latex');
+        legend('Strategy 1 - Vaccination in Childhood','Strategy 2 - Vaccination at Screening','Strategy 3 - Vaccination at Diagnosis','fontsize',20,'Interpreter','latex');
         box on;
     grid on;
     
@@ -44,9 +44,9 @@
         plot((0:n_Days),avg_cefta2High,'color',[19/255,145/255,62/255],'linewidth',2);
         plot((0:n_Days),avg_cefta3High,'color',[0.494,0.184,0.556],'linewidth',2);
         plot((0:n_Days),(8.78*(0:n_Days)),'color',[0,0,0],'linewidth',2);
-        xlabel('Time (days)','fontsize',18,'Interpreter','latex');
-        ylabel('Cumulative drug doses administered','fontsize',18,'Interpreter','latex');
-        legend('Strategy 1 - Vaccination in Childhood','Strategy 2 - Vaccination at Screening','Strategy 3 - Vaccination at Diagnosis','No Vaccination','fontsize',18,'Interpreter','latex');
+        xlabel('Time (days)','fontsize',22,'Interpreter','latex');
+        ylabel('Cumulative drug doses administered','fontsize',22,'Interpreter','latex');
+        legend('Strategy 1 - Vaccination in Childhood','Strategy 2 - Vaccination at Screening','Strategy 3 - Vaccination at Diagnosis','No Vaccination','fontsize',20,'Interpreter','latex');
         box on;
         grid on;
         
@@ -64,8 +64,8 @@
 figure('name','boxplots')
     b = [finalPrev1High,finalPrev2High,finalPrev3High];
     boxplot(b);
-    ylabel('Prevalence (\%)','fontSize',16,'interpreter','latex');
-    xlabel('Strategy','fontSize',16,'interpreter','latex');
+    ylabel('Prevalence (\%)','fontSize',22,'interpreter','latex');
+    xlabel('Strategy','fontSize',22,'interpreter','latex');
     grid on;
     box on;
 

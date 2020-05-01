@@ -131399,6 +131399,7 @@ n_Days = 4000;
                 figure('name','average no. of vaccinated people');
                     hold on;
                     avg_vac_current3High = 100*avg_vac_current/N;
+                    vac_people62High = 100*avg_vac_current/N;
                     std_vac_current = 100^2*std_vac_current/N^2; %normalise
                     plot([0:n_Days], avg_vac_current3High);
                     shadedErrorBar([0:n_Days],avg_vac_current,[std_vac_current(:,1),std_vac_current(:,1)])

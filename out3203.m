@@ -131286,6 +131286,7 @@ n_Days = 4000;
                     hold on;
                     %plot([0:n_Days], cumsum(avg_vac_doses));
                     avg_vac_doses3 = cumsum(avg_vac_doses);
+             
                     shadedErrorBar([0:n_Days],cumsum(avg_vac_doses),[std_vac_doses(:,1),std_vac_doses(:,1)])
                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
                     ylabel('No of vaccine doses given','fontsize',14,'Interpreter','latex');
@@ -131297,6 +131298,7 @@ n_Days = 4000;
                     hold on;
                     avg_vac_current3 = 100*avg_vac_current/N;
                     std_vac_current3 = 100^2*std_vac_current/N^2; %normalise
+                    vac_people100 = 100*avg_vac_current/N;
                     plot([0:n_Days], avg_vac_current3);
                     shadedErrorBar([0:n_Days],avg_vac_current3,[std_vac_current3(:,1),std_vac_current3(:,1)])
                     xlabel('Time (days)','fontsize',14,'Interpreter','latex');
